@@ -1,0 +1,15 @@
+.count-running {
+    animation: countAnimation 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes countAnimation {
+    0% {
+        transform: translateY(0) rotate(0deg);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+    100% {
+        transform: translateY(0);
+    }
+}

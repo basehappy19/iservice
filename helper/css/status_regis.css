@@ -1,0 +1,15 @@
+.normal {
+    background-color: rgba(156, 247, 170, 0.75)!important;
+}
+.sell {
+    background-color: rgba(255, 197, 128, 0.75)!important;
+}
+.wait-sell {
+    background-color: rgba(255, 158, 158, 0.75)!important;
+}
+.broken {
+    background-color: #D45353!important;
+}
+.useless {
+    background-color: #D45353!important;
+}

@@ -1,0 +1,14 @@
+@media only screen and (max-width: 600px) {
+    .card-con {
+        border-radius: 0;
+    }
+    .card-success-fix-recent {
+        margin-top: 20px;
+    }
+    
+}
+@media only screen and (max-width: 768px) {
+    .fix-recent {
+        margin-top: 65px;
+    }
+}
