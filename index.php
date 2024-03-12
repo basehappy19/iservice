@@ -2,7 +2,6 @@
 session_start();
 require_once 'helper/server/db.php';
 include 'helper/server/status.php';
-
 $sql = "SELECT *,
                 DATE_ADD(device_broken.date_report_broken, INTERVAL 543 YEAR) as date_report_broken_adjusted,
                 DATE_ADD(device_broken.date_success_fix, INTERVAL 543 YEAR) as date_success_fix_adjusted
