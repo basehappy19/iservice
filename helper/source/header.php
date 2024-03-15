@@ -15,6 +15,7 @@
                     <a class="nav-link link" aria-current="page" href="./"><img src="helper/icon/house.png" class="img-nav-link" /> หน้าหลัก</a>
                     <a class="nav-link link" href="list-item"><img src="helper/icon/costing.png" class="img-nav-link" /> ทะเบียนครุภัณฑ์</a>
                     <a class="nav-link link" href="report_repair"><img src="helper/icon/repair-tools.png" class="img-nav-link" /> แจ้งซ่อมครุภัณฑ์</a>
+
                     <?php
                     if (isset($_SESSION['role'])) {
                         include_once 'helper/server/data_user.php';
@@ -33,11 +34,19 @@
                         </div>
                     <?php } ?>
                     <a class="nav-link link" href="status_repair"><img src="helper/icon/check-list.png" class="img-nav-link" /> สถานะการซ่อม</a>
-                    <?php if (isset($_SESSION['role']) && $_SESSION['role'] == '4') { ?>
-                        <a class="nav-link link" href="management"><img src="helper/icon/add-user.png" class="img-nav-link" /> จัดการผู้ใช้</a>
-                    <?php
-                    }
-                    ?>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle link" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="helper/icon/data-complexity.png" class="img-nav-link" /> จัดการฐานข้อมูล
+                        </a>
+                        <ul class="dropdown-menu">
+                            <?php if (isset($_SESSION['role']) && $_SESSION['role'] == '4') { ?>
+                                <li><a class="nav-link dropdown-margin link" href="m_user"><img src="helper/icon/add-user.png" class="img-nav-link" /> ผู้ใช้</a></li>
+                            <?php
+                            }
+                            ?>
+                            <li><a class="nav-link dropdown-margin link" href="m_institute"><img src="helper/icon/enterprise.png" class="img-nav-link" /> หน่วยงาน</a></li>          
+                        </ul>
+                    </li>
                 </div>
             </div>
             <?php

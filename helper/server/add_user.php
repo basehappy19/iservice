@@ -27,7 +27,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             confirmButtonText: "ลองใหม่อีกครั้ง",
             });
         </script>';
-        header("Location: ../../management");
+        header("Location: ../../m_user");
         exit();
     } else {
         
@@ -36,7 +36,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt = mysqli_prepare($conn, $sql);
         mysqli_stmt_bind_param($stmt, "sssi", $username, $hashed_password, $name, $role_id);
         if (mysqli_stmt_execute($stmt)) {
-            header("Location: ../../management");
+            header("Location: ../../m_user");
             exit();
         } else {
             echo "มีข้อผิดพลาดเกิดขึ้น: " . mysqli_error($conn);

@@ -4,11 +4,14 @@ nav {
     
 }
 
-
 .link {
     font-weight: bold;
     color: #636363;
     border-radius: 8px;
+}
+
+.nav-link.show, .nav-link:focus {
+    color: #636363!important;
 }
 .link:hover {
     border-radius: 8px;
@@ -19,6 +22,9 @@ nav {
     width: 20px;
 }
 
+.dropdown-margin {
+    margin: 0 15px;
+}
 
 .navbar-toggler {
     border: 0 !important;

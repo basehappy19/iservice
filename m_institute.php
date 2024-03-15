@@ -20,7 +20,7 @@ $data = mysqli_stmt_get_result($stmt);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>จัดการฐานข้อมูล | โรงพยาบาลเมตตาประชารักษ์ (วัดไร่ขิง)</title>
+    <title>จัดการหน่วยงาน | โรงพยาบาลเมตตาประชารักษ์ (วัดไร่ขิง)</title>
     <?php include 'helper/source/head.php' ?>
 </head>
 
@@ -36,7 +36,7 @@ $data = mysqli_stmt_get_result($stmt);
         <section>
 
             <div class="container mt-3 mx-auto card-con">
-                <h1 class="head-info text-center">รายชื่อผู้ใช้</h1>
+                <h1 class="head-info text-center">รายชื่อหน่วยงาน</h1>
                 <p class="head-info text-center">ยินดีต้อนรับ <?php echo $data_user['name'] ?></p>
                 <div class="text-end m-3">
                     <button type="button" class="btn btn-new btn-new-success" data-toggle="modal" data-target="#add_userModal">
@@ -47,31 +47,22 @@ $data = mysqli_stmt_get_result($stmt);
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>ชื่อผู้ใช้</th>
-                            <th>ชื่อ - นามสกุล</th>
-                            <th>ตำแหน่ง</th>
+                            <th>ชื่อหน่วยงาน</th>
                             <th></th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php $i = 1;
                         while ($row = mysqli_fetch_assoc($data)) : ?>
-                            <?php if ($row['username'] != 'system') : ?>
-                                <tr>
-                                    <td><?php echo $i; ?></td>
-                                    <td><?php echo $row['username']; ?></td>
-                                    <td><?php echo $row['name']; ?></td>
-                                    <td><?php echo $row['role_name']; ?></td>
-                                    <td>
-                                        <?php if ($row['username'] != 'system') : ?>
-                                            <button type="button" class="btn btn-new btn-new-warning" data-toggle="modal" data-target="#edit_userModal<?php echo $row['user_id']; ?>">
-                                                แก้ไขข้อมูล <i class="fa-solid fa-pencil"></i>
-                                            </button>
-                                            <button type="button" class="btn btn-new btn-new-danger" onclick="delete_user('helper/server/delete_user.php?user_id=<?php echo $row['user_id'] ?>')">ลบผู้ใช้</button>
-                                        <?php endif; ?>
-                                    </td>
-                                </tr>
-                            <?php endif; ?>
+
+                            <tr>
+                                <td><?php echo $i; ?></td>
+                                <td><?php echo $row['username']; ?></td>
+                                <td>
+                                    <button type="button" class="btn btn-new btn-new-danger" onclick="delete_user('helper/server/delete_user.php?user_id=<?php echo $row['user_id'] ?>')">ลบหน่วยงาน</button>
+                                </td>
+                            </tr>
+
                             <?php include 'helper/source/modal-edit-user.php' ?>
                             <?php include 'helper/source/modal-add-user.php' ?>
                         <?php $i++;

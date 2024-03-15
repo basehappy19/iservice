@@ -9,7 +9,7 @@ if (isset($_GET['user_id'])) {
     mysqli_stmt_execute($stmt);
 
     if (mysqli_stmt_affected_rows($stmt) > 0) {
-        header("Location: ../../management");
+        header("Location: ../../m_user");
     }
 
     mysqli_stmt_close($stmt);

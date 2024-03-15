@@ -24,7 +24,7 @@ if ($result->num_rows > 0) {
     if ($_SESSION['role'] == '2') {
       header("Location: ../../dashboard_repair");
     } else if ($_SESSION['role'] == '4') {
-      header("Location: ../../management");
+      header("Location: ../../");
     } else {
       header("Location: ../../");
     }
