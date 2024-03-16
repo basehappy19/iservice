@@ -2,7 +2,7 @@
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="add_userModalLabel">แก้ไขข้อมูลผู้ใช้ที่ <?php echo $i; ?></h5>
+                <h5 class="modal-title" id="add_userModalLabel">เพิ่มข้อมูลผู้ใช้</h5>
                 <button type="button" class="btn" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true"><i class="fa-solid fa-x"></i></span>
                 </button>

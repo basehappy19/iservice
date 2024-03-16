@@ -8,6 +8,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $mission_group_id = $_POST['mission_group_id'];
     $work_group_id = $_POST['work_group_id'];
     $department_id = $_POST['department_id'];
+    $institute_id = $_POST['institute_id'];
     $building_id = $_POST['building_id'];
     $floor_id = $_POST['floor_id'];
     $type_id = $_POST['type_id'];
@@ -43,6 +44,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         mission_group_id,
         work_group_id, 
         department_id,
+        institute_id,
         building_id, 
         floor_id, 
         type_id, 
@@ -71,13 +73,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         status_id
         )
         VALUES 
-        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)");
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)");
     
-    $stmt->bind_param("ssssssssssssssssssssssssssssss", 
+    $stmt->bind_param("sssssssssssssssssssssssssssssss", 
         $category_id, 
         $mission_group_id, 
         $work_group_id, 
         $department_id, 
+        $institute_id, 
         $building_id, 
         $floor_id, 
         $type_id, 
@@ -107,13 +110,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
     if ($stmt->execute()) {
         header("Location: ../../list-item");
-        exit(); // Terminate the script after redirection
+        exit(); 
     } else {
-        // If execution fails, handle the error
         echo "Error: " . $stmt->error;
     }
     
-    // Close the statement
     $stmt->close();
 }    
 ?>

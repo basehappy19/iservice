@@ -26,7 +26,7 @@ $row = mysqli_fetch_assoc($result);
                 <h2 class="head-info text-center">แก้ไขข้อมูลครุภัณฑ์ที่ <?php echo $row['device_id'] ?></h2>
                 <hr>
                 <h3 class="head-info">ข้อมูลเบื้องต้น</h3>
-                <form id="edit_regis" action="helper/server/edit_regis.php?device_id=<?php echo $row['device_id']; ?>"" method="post">
+                <form id="edit_regis" action="helper/server/edit_regis.php?device_id=<?php echo $row['device_id']; ?>"" method=" post">
                     <div class="row">
                         <div class="col-lg-12 mb-3">
                             <label for="category_id">หมวดหมู่อุปกรณ์</label>
@@ -112,6 +112,26 @@ $row = mysqli_fetch_assoc($result);
                                 ?>
                             </select>
                         </div>
+                    </div>
+                    <div class="col-lg-12 mb-3" id="institute_form">
+                        <label for="institute_id">หน่วยงาน</label>
+                        <select class="form-control" name="institute_id" id="institute_id" onclick="clearBorder(this)">
+                            <option value="">-- เลือกหน่วย --</option>
+                            <?php
+                            $instituteSql = "SELECT * FROM institute";
+                            $instituteStmt = mysqli_prepare($conn, $instituteSql);
+                            mysqli_stmt_execute($instituteStmt);
+                            $instituteData = mysqli_stmt_get_result($instituteStmt);
+
+                            $iinstitute = 1;
+
+                            while ($instituteRow = mysqli_fetch_assoc($instituteData)) {
+                                $selected = ($instituteRow['institute_id'] == $row['institute_id']) ? 'selected' : '';
+                                echo "<option value='{$instituteRow['institute_id']}' $selected>{$iinstitute}. {$instituteRow['institute_name']}</option>";
+                                $ibuilding++;
+                            }
+                            ?>
+                        </select>
                     </div>
                     <div class="row">
                         <div class="col mb-3" id="building_form">

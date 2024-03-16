@@ -18,6 +18,7 @@ if (isset($_GET['category'])) {
                 INNER JOIN mission_group ON device.mission_group_id = mission_group.mission_group_id
                 INNER JOIN work_group ON device.work_group_id = work_group.work_group_id
                 INNER JOIN department ON device.department_id = department.department_id
+                INNER JOIN institute ON device.institute_id = institute.institute_id
                 INNER JOIN building ON device.building_id = building.building_id
                 INNER JOIN floor ON device.floor_id = floor.floor_id
                 INNER JOIN type ON device.type_id = type.type_id
@@ -45,6 +46,7 @@ if (isset($_GET['category'])) {
             INNER JOIN mission_group ON device.mission_group_id = mission_group.mission_group_id
             INNER JOIN work_group ON device.work_group_id = work_group.work_group_id
             INNER JOIN department ON device.department_id = department.department_id
+            INNER JOIN institute ON device.institute_id = institute.institute_id
             INNER JOIN building ON device.building_id = building.building_id
             INNER JOIN floor ON device.floor_id = floor.floor_id
             INNER JOIN type ON device.type_id = type.type_id

@@ -34,19 +34,21 @@
                         </div>
                     <?php } ?>
                     <a class="nav-link link" href="status_repair"><img src="helper/icon/check-list.png" class="img-nav-link" /> สถานะการซ่อม</a>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle link" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img src="helper/icon/data-complexity.png" class="img-nav-link" /> จัดการฐานข้อมูล
-                        </a>
-                        <ul class="dropdown-menu">
-                            <?php if (isset($_SESSION['role']) && $_SESSION['role'] == '4') { ?>
+                    <?php if (isset($_SESSION['role']) && $_SESSION['role'] == '4') { ?>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle link" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <img src="helper/icon/data-complexity.png" class="img-nav-link" /> จัดการฐานข้อมูล
+                            </a>
+                            <ul class="dropdown-menu">
                                 <li><a class="nav-link dropdown-margin link" href="m_user"><img src="helper/icon/add-user.png" class="img-nav-link" /> ผู้ใช้</a></li>
-                            <?php
-                            }
-                            ?>
-                            <li><a class="nav-link dropdown-margin link" href="m_institute"><img src="helper/icon/enterprise.png" class="img-nav-link" /> หน่วยงาน</a></li>          
-                        </ul>
-                    </li>
+
+                                <li><a class="nav-link dropdown-margin link" href="m_institute"><img src="helper/icon/enterprise.png" class="img-nav-link" /> หน่วยงาน</a></li>
+                            </ul>
+                        </li>
+                    <?php
+                    }
+                    ?>
+
                 </div>
             </div>
             <?php

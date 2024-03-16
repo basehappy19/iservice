@@ -332,6 +332,48 @@ function check_add_user() {
 
   return pass;
 }
+function add_institute() {
+  if (check_add_institute()) {
+    Swal.fire({
+      title: "เพิ่มข้อมูลหน่วยงาน",
+      text: "แน่ใจหรือไม่",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#5fe280",
+      cancelButtonColor: "#e25f5f",
+      cancelButtonText: "ยกเลิก",
+      confirmButtonText: "ยืนยัน",
+      timer: 10000,
+      timerProgressBar: true,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setTimeout(function () {
+          document.getElementById("add_institute").submit();
+        }, 1000);
+      }
+    });
+  }
+}
+function check_add_institute() {
+  var pass = true;
+  var name = document.querySelector("#name_add");
+
+  if (
+    !name.value
+  ) {
+    pass = false;
+    Swal.fire({
+      icon: "error",
+      title: "โปรดใส่ชื่อหน่วยงานให้",
+      text: "กรุณาใส่ชื่อหน่วยงาน",
+      confirmButtonColor: "#e25f5f",
+      confirmButtonText: "ลองใหม่อีกครั้ง",
+    });
+    name.style.border = "1px solid red";
+  } 
+
+  return pass;
+}
 function clearBorder(e) {
   document.querySelector(`#${e.id}`).style.border = "1px solid #dee2e6";
 }
@@ -557,6 +599,47 @@ function delete_user(url) {
           Swal.fire({
             title: "เรียบร้อย!",
             text: "ลบข้อมูลผู้ใช้เรียบร้อย",
+            icon: "success",
+            confirmButtonText: "ตกลง",
+            confirmButtonColor: "#5fe280",
+          }).then(() => {
+            setTimeout(function () {
+              window.location.href = url;
+            }, 1000);
+          });
+        }
+      });
+    }
+  });
+}
+function delete_institute(url) {
+  Swal.fire({
+    title: "ลบหน่วยงาน",
+    text: "แน่ใจหรือไม่",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#5fe280",
+    cancelButtonColor: "#e25f5f",
+    cancelButtonText: "ยกเลิก",
+    confirmButtonText: "แน่ใจ",
+    timer: 10000,
+    timerProgressBar: true,
+  }).then((result) => {
+    if (result.isConfirmed) {
+      Swal.fire({
+        title: "ยืนยันการลบหน่วยงาน",
+        text: "กรุณายืนยันอีกครั้ง",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#5fe280",
+        cancelButtonColor: "#e25f5f",
+        confirmButtonText: "ยืนยัน",
+        cancelButtonText: "ยกเลิก",
+      }).then((secondResult) => {
+        if (secondResult.isConfirmed) {
+          Swal.fire({
+            title: "เรียบร้อย!",
+            text: "ลบข้อมูลหน่วยงานเรียบร้อย",
             icon: "success",
             confirmButtonText: "ตกลง",
             confirmButtonColor: "#5fe280",

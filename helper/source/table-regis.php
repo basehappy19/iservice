@@ -6,6 +6,7 @@
             <th scope="col">กลุ่มภารกิจ</th>
             <th scope="col">กลุ่มงาน</th>
             <th scope="col">แผนก</th>
+            <th scope="col">หน่วยงาน</th>
             <th scope="col">อาคาร / ชั้น</th>
             <th scope="col">ประเภท</th>
             <th scope="col">ยี่ห้อ</th>
@@ -46,6 +47,7 @@
                 <td><?php echo $row['mission_group_name']; ?></td>
                 <td><?php echo $row['work_group_name']; ?></td>
                 <td><?php echo $row['department_name']; ?></td>
+                <td><?php echo $row['institute_name']; ?></td>
                 <td><?php echo $row['building_name'] . ' ' . $row['floor_name']; ?></td>
                 <td><?php echo $row['type_name']; ?></td>
                 <td><?php echo $row['brand']; ?></td>
