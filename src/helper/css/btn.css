@@ -1,0 +1,56 @@
+.btn-new {
+    transition: transform 0.5s!important;
+    color: #fff!important; 
+    /* border: 1px solid #000000!important;  */
+    padding: 5px 10px; 
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    border-radius: 50px;
+    font-size: 16px; 
+    cursor: pointer;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.btn-new:hover {
+    transform: scale(1.1);
+    color: rgb(38, 38, 38)!important; 
+    background-color: #000000;
+    border: 0.5px solid #2f2f2f80;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.btn-new-warning {
+    background-color: #fbc266!important;
+}
+
+.btn-new-warning:hover {
+    background-color: #fbc266!important;
+}
+
+.btn-new-success {
+    background-color: #5fe280!important;
+}
+.btn-new-success:hover {
+    background-color: #5fe280!important;
+}
+
+.btn-new-danger {
+    background-color: #e25f5f!important;
+}
+.btn-new-danger:hover {
+    background-color: #e25f5f!important;
+}
+
+.btn-new-info {
+    background-color: #5fb8e2!important;
+}
+.btn-new-info:hover {
+    background-color: #5fb8e2!important;
+}
+
+.btn-new-upload {
+    background-color: #5fb8e2!important;
+}
+.btn-new-upload:hover {
+    background-color: #5fb8e2!important;
+}

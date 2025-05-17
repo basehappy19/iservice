@@ -1,0 +1,205 @@
+@import url("https://fonts.googleapis.com/css2?family=Prompt:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+
+body {
+    font-family: "Prompt", sans-serif;
+    background-color: #f9f9f9;
+}
+
+header {
+    margin-bottom: 120px;
+}
+
+.count {
+    font-weight: bold;
+}
+
+.head-info {
+    color: #000000;
+    opacity: 75%;
+    font-weight: bolder;   
+}
+
+.login {
+    max-width: 500px;
+}
+
+.card-bg {
+    transition: transform 0.5s!important;
+    background-color: #ffffff; 
+    padding: 20px; 
+    border: 1px solid #A3A3A3; 
+    border-radius: 15px; 
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+.card-con {
+    color: #000000;
+    background-color: #ffffff; 
+    padding: 20px; 
+    border: 1px solid #d5d5d5; 
+    border-radius: 10px; 
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+.card-bg1 {
+    color: #000000;
+    background-color: #7fe8f98f;
+    border: 2px solid #59c0fc; 
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+.card-bg2 {
+    color: #000000;
+    background-color: #fca895a2;
+    border: 2px solid #f25959; 
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+.card-bg3 {
+    color: #000000;
+    background-color: #f7ce76a6;
+    border: 2px solid #f19451; 
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+.card-bg4 {
+    color: #000000;
+    background-color: #91f37098;
+    border: 2px solid #45bd35; 
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+.card-success-fix-recent {
+    border: 2px solid #8EE892; 
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    position: relative;
+    min-height: 200px;
+    margin-top: 75px;
+}
+
+.recent {
+    font-weight: bold;
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    border-radius: 10px;
+    padding: 10px;
+    background-color: #A7F9B4;
+}
+
+.card-bgs1 {
+    border: 1px solid #8C349A; 
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+.card-bgs2 {
+    border: 1px solid #BDBA69; 
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+.card-bgs3 {
+    border: 1px solid #64D770; 
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+.card-bg1:hover, .card-bg2:hover, .card-bg3:hover, .card-bg4:hover, .card-bgs1:hover, .card-bgs2:hover, .card-bgs3:hover {
+    transform: scale(1.1);
+}
+
+a {
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.tel-link {
+    color: #be57ce;
+}
+.tel-link:hover {
+    color: #8C349A;
+}
+
+
+.status {
+    padding: 6px 10px;
+    margin-right: 15px;
+}
+.status-fix-success {
+    font-size: 20px;
+    text-shadow: 1px 1px #000000;
+    background-color: #49c97e!important;
+    border: 2px solid #268e52!important;
+}
+.status-fixing {
+    font-size: 20px;
+    text-shadow: 1px 1px #000000;
+    background-color: #f7a27b!important;
+    border: 2px solid #a55d3b!important;
+}
+.status-wait {
+    font-size: 20px;
+    text-shadow: 1px 1px #000000;
+    background-color: #ffea61!important;
+    border: 2px solid #dfbb5e!important;
+}
+.status-sell {
+    font-size: 20px;
+    text-shadow: 1px 1px #000000;
+    background-color: #87e3fd!important;
+    border: 2px solid #357c90!important;
+}
+.status-useless {
+    font-size: 20px;
+    text-shadow: 1px 1px #000000;
+    background-color: #b3b2b9!important;
+    border: 2px solid #000000!important;
+}
+
+.card-status-fix-success {
+    border: 2px solid #268e52!important;
+}
+.card-status-fixing {
+    border: 2px solid #a55d3b!important;
+}
+.card-status-wait {
+    border: 2px solid #dfbb5e!important;
+}
+.card-status-sell {
+    border: 2px solid #357c90!important;
+}
+.card-status-useless {
+    border: 2px solid #b3b2b9!important;
+}
+
+.notification {
+    position: relative;
+}
+
+.notification-badge {
+    font-weight: bold;
+    color: #000;
+    position: absolute;
+    right: 0;
+    top: 0;
+    border-radius: 50%;
+    background-color: #f9a7a7;
+}
+
+.profile img {
+    border-radius: 50%;
+    border: 1px solid #d05edb;
+    object-fit: cover;
+    width: 50px;
+    height: 50px; 
+}
+
+
+.full-profile img {
+    border-radius: 50%;
+    border: 1px solid #d05edb;
+    object-fit: cover;
+    width: 200px;
+    height: 200px;
+}
+table {
+    border-radius: 30px!important;
+}
+
+#preview {
+    width: 100%;
+    max-width: 600px;
+}
+
+#preview > img {
+    border: 3px dashed #aa58a6;
+}

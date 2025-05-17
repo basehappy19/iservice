@@ -1,0 +1,11 @@
+src/favicon/
+src/helper/img/
+src/helper/icon/
+
+src/helper/data/profile/
+src/helper/data/report/
+
+src/node_modules/
+src/composer.lock
+src/package-lock.json
+src/vendor/
