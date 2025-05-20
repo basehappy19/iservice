@@ -39,7 +39,7 @@
         </tr>
     </thead>
     <tbody>
-        <?php foreach ($devices as $device => $index) : ?>
+        <?php foreach ($devices as $index => $device) : ?>
             <tr>
                 <td><?php echo $index + 1; ?></td>
                 <td><?php echo $device['regis_number']; ?></td>
@@ -52,7 +52,7 @@
                 <td><?php echo $device['brand']; ?></td>
                 <td><?php echo $device['model']; ?></td>
                 <td><?php echo $device['responsible']; ?></td>
-                <td><?php echo $device['year_received']; ?></td>
+                <td><?php echo (int)$device['year_received'] + 543; ?></td>
                 <td class="text-center 
                     <?php
                     $status_classes = [
@@ -65,7 +65,7 @@
                     echo isset($status_classes[$device['status_id']]) ? $status_classes[$device['status_id']] : '';
                     ?>">
                     <?php echo $device['status_name']; ?></td>
-                <td><?php echo $device['budget_year']; ?></td>
+                <td><?php echo (int)$device['budget_year'] + 543; ?></td>
                 <td><?php echo $device['budget_source_name']; ?></td>
                 <td><?php echo $device['old_department']; ?></td>
                 <td><?php echo $device['regis_date']; ?></td>

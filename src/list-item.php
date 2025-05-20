@@ -39,22 +39,22 @@ if (isset($_GET['category'])) {
                 DATE_ADD(device.warranty_start, INTERVAL 543 YEAR) as warranty_start,
                 DATE_ADD(device.warranty_end, INTERVAL 543 YEAR) as warranty_end
             FROM device
-            INNER JOIN category ON device.category_id = category.category_id
-            INNER JOIN mission_group ON device.mission_group_id = mission_group.mission_group_id
-            INNER JOIN work_group ON device.work_group_id = work_group.work_group_id
-            INNER JOIN department ON device.department_id = department.department_id
-            INNER JOIN institute ON device.institute_id = institute.institute_id
-            INNER JOIN building ON device.building_id = building.building_id
-            INNER JOIN floor ON device.floor_id = floor.floor_id
-            INNER JOIN type ON device.type_id = type.type_id
-            INNER JOIN status ON device.status_id = status.status_id
-            INNER JOIN budget_source ON device.budget_source_id = budget_source.budget_source_id
+            LEFT JOIN category ON device.category_id = category.category_id
+            LEFT JOIN mission_group ON device.mission_group_id = mission_group.mission_group_id
+            LEFT JOIN work_group ON device.work_group_id = work_group.work_group_id
+            LEFT JOIN department ON device.department_id = department.department_id
+            LEFT JOIN institute ON device.institute_id = institute.institute_id
+            LEFT JOIN building ON device.building_id = building.building_id
+            LEFT JOIN floor ON device.floor_id = floor.floor_id
+            LEFT JOIN type ON device.type_id = type.type_id
+            LEFT JOIN status ON device.status_id = status.status_id
+            LEFT JOIN budget_source ON device.budget_source_id = budget_source.budget_source_id
     ";
 
     $stmt = $conn->prepare($sql);
     $stmt->execute();
     $devices = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
+
 }
 
 ?>
@@ -111,10 +111,6 @@ if (isset($_GET['category'])) {
             </div>
         </section>
     </main>
-    <?php include_once 'helper/API/building_floor/floors.php' ?>
-    <?php include_once 'helper/API/mission_work/works.php' ?>
-    <?php include_once 'helper/API/department/department.php' ?>
-    <?php include_once 'helper/API/category/category.php' ?>
 </body>
 
 </html>

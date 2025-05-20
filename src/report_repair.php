@@ -58,13 +58,11 @@ require_once './helper/server/db.php';
                                 $category_stmt->execute();
                                 $categories = $category_stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                                $icategory = 1;
-                                foreach ($categories as $categoryRow) {
-                                    $selected = ($categoryRow['category_id'] == $row['category_id']) ? 'selected' : '';
-                                    echo "<option value='{$categoryRow['category_id']}' $selected>{$icategory}. {$categoryRow['category_name']}</option>";
-                                    $icategory++;
-                                }
-                                ?>
+                                foreach ($categories as $categoryRow) : ?>
+                                    <option value="<?php echo $categoryRow['category_id']; ?>" <?php if ($categoryRow['category_id'] == $row['category_id']) echo 'selected'; ?>>
+                                        <?php echo $categoryRow['category_name']; ?>
+                                    </option>
+                                <?php endforeach; ?>
                             </select>
                         </div>
                         <div class="col-lg-12 mb-3">

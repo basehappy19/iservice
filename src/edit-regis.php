@@ -3,9 +3,29 @@ require_once 'helper/server/db.php';
 session_start();
 
 $device_id = $_GET['device_id'];
-$query = "SELECT * FROM device WHERE device_id = '$device_id'";
-$result = mysqli_query($conn, $query);
-$row = mysqli_fetch_assoc($result);
+$sql = "SELECT *, UPPER(brand) as brand,
+            DATE_ADD(device.regis_date, INTERVAL 543 YEAR) as regis_date,
+            DATE_ADD(device.transfer_date, INTERVAL 543 YEAR) as transfer_date,
+            DATE_ADD(device.change_date, INTERVAL 543 YEAR) as change_date,
+            DATE_ADD(device.exp_date, INTERVAL 543 YEAR) as exp_date,
+            DATE_ADD(device.warranty_start, INTERVAL 543 YEAR) as warranty_start,
+            DATE_ADD(device.warranty_end, INTERVAL 543 YEAR) as warranty_end
+        FROM device
+        LEFT JOIN category ON device.category_id = category.category_id
+        LEFT JOIN mission_group ON device.mission_group_id = mission_group.mission_group_id
+        LEFT JOIN work_group ON device.work_group_id = work_group.work_group_id
+        LEFT JOIN department ON device.department_id = department.department_id
+        LEFT JOIN institute ON device.institute_id = institute.institute_id
+        LEFT JOIN building ON device.building_id = building.building_id
+        LEFT JOIN floor ON device.floor_id = floor.floor_id
+        LEFT JOIN type ON device.type_id = type.type_id
+        LEFT JOIN status ON device.status_id = status.status_id
+        LEFT JOIN budget_source ON device.budget_source_id = budget_source.budget_source_id
+        WHERE device.device_id = :device_id";
+$stmt = $conn->prepare($sql);
+$stmt->bindParam(":device_id", $device_id, PDO::PARAM_INT);
+$stmt->execute();
+$device = $stmt->fetch(PDO::FETCH_ASSOC);
 
 ?>
 <!DOCTYPE html>
@@ -14,7 +34,7 @@ $row = mysqli_fetch_assoc($result);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>แก้ไขข้อมูลครุภัณฑ์ที่ <?php echo $row['device_id'] ?></title>
+    <title>แก้ไขข้อมูลครุภัณฑ์ที่ <?php echo $device['device_id'] ?></title>
     <?php include 'helper/source/head.php' ?>
 </head>
 
@@ -23,155 +43,164 @@ $row = mysqli_fetch_assoc($result);
     <main>
         <section>
             <div class="container-fluid mt-3 mx-auto card-con">
-                <h2 class="head-info text-center">แก้ไขข้อมูลครุภัณฑ์ที่ <?php echo $row['device_id'] ?></h2>
+                <h2 class="head-info text-center">แก้ไขข้อมูลครุภัณฑ์ที่ <?php echo $device['device_id'] ?></h2>
                 <hr>
                 <h3 class="head-info">ข้อมูลเบื้องต้น</h3>
                 <form id="edit_regis" action="helper/server/edit_regis.php" method="post">
                     <div class="row">
-                        <input type="hidden" name="device_id" value="<?php echo $row['device_id']; ?>">
+                        <input type="hidden" name="device_id" value="<?php echo $device['device_id']; ?>">
                         <div class="col-lg-12 mb-3">
                             <label for="category_id">หมวดหมู่อุปกรณ์</label>
                             <select class="form-control" name="category_id" id="category_id" onclick="clearBorder(this)">
                                 <option value="">-- หมวดหมู่อุปกรณ์ --</option>
                                 <?php
-                                $categorySql = "SELECT * FROM category";
-                                $categoryStmt = mysqli_prepare($conn, $categorySql);
-                                mysqli_stmt_execute($categoryStmt);
-                                $categoryData = mysqli_stmt_get_result($categoryStmt);
+                                $sql = "SELECT * FROM category";
+                                $stmt = $conn->prepare($sql);
+                                $stmt->execute();
+                                $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                                $icategory = 1;
-
-                                while ($categoryRow = mysqli_fetch_assoc($categoryData)) {
-                                    $selected = ($categoryRow['category_id'] == $row['category_id']) ? 'selected' : '';
-                                    echo "<option value='{$categoryRow['category_id']}' $selected>{$icategory}. {$categoryRow['category_name']}</option>";
-                                    $icategory++;
-                                }
-                                ?>
+                                foreach ($categories as $index => $category) : ?>
+                                    <option <?php echo $category['category_id'] == $device['category_id'] ? 'selected' : '' ?> value="<?php echo $category['category_id'] ?>"><?php echo $index + 1 ?>. <?php echo $category['category_name'] ?></option>";
+                                <?php endforeach; ?>
                             </select>
                         </div>
                         <div class="col-lg-12 mb-3">
                             <label for="regis_number">เลขครุภัณฑ์</label>
-                            <input class="form-control" type="text" name="regis_number" id="regis_number" value="<?php echo $row['regis_number'] ?>" placeholder="เลขครุภัณฑ์" onkeydown="clearBorder(this)">
+                            <input class="form-control" type="text" name="regis_number" id="regis_number" value="<?php echo $device['regis_number'] ?>" placeholder="เลขครุภัณฑ์" onkeydown="clearBorder(this)">
                         </div>
                         <div class="col mb-3" id="mission_group_form">
                             <label for="mission_group_id">กลุ่มภารกิจ</label>
-                            <select class="form-control" name="mission_group_id" id="mission_group_id" onclick="clearBorder(this)">
+                            <select onchange="updateWorkGroups()" class="form-control" name="mission_group_id" id="mission_group_id" onclick="clearBorder(this)">
                                 <option value="">-- กลุ่มภารกิจ --</option>
                                 <?php
-                                $missionGroupSql = "SELECT * FROM mission_group";
-                                $missionGroupStmt = mysqli_prepare($conn, $missionGroupSql);
-                                mysqli_stmt_execute($missionGroupStmt);
-                                $missionGroupData = mysqli_stmt_get_result($missionGroupStmt);
+                                $sql = "SELECT * FROM mission_group";
+                                $stmt = $conn->prepare($sql);
+                                $stmt->execute();
+                                $mission_groups = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                                $imissionGroup = 1;
-
-                                while ($missionGroupRow = mysqli_fetch_assoc($missionGroupData)) {
-                                    $selected = ($missionGroupRow['mission_group_id'] == $row['mission_group_id']) ? 'selected' : '';
-                                    echo "<option value='{$missionGroupRow['mission_group_id']}' $selected>{$imissionGroup}. {$missionGroupRow['mission_group_name']}</option>";
-                                    $imissionGroup++;
-                                }
-                                ?>
+                                foreach ($mission_groups as $index => $mission_group) : ?>
+                                    <option <?php echo $mission_group['mission_group_id'] == $device['mission_group_id'] ? 'selected' : '' ?> value="<?php echo $mission_group['mission_group_id'] ?>"><?php echo $index + 1 ?>. <?php echo $mission_group['mission_group_name'] ?></option>";
+                                <?php endforeach; ?>
                             </select>
                         </div>
                         <div class="col mb-3" id="work_group_form">
                             <label for="work_group_id">กลุ่มงาน</label>
-                            <select class="form-control" name="work_group_id" id="work_group_id" onclick="clearBorder(this)">
-                                <option value="">-- เลือกแผนก --</option>
-                                <?php
-                                $workGroupSql = "SELECT * FROM work_group";
-                                $workGroupStmt = mysqli_prepare($conn, $workGroupSql);
-                                mysqli_stmt_execute($workGroupStmt);
-                                $workGroupData = mysqli_stmt_get_result($workGroupStmt);
-
-                                $iworkGroup = 1;
-
-                                while ($workGroupRow = mysqli_fetch_assoc($workGroupData)) {
-                                    $selected = ($workGroupRow['work_group_id'] == $row['work_group_id']) ? 'selected' : '';
-                                    echo "<option value='{$workGroupRow['work_group_id']}' $selected>{$iworkGroup}. {$workGroupRow['work_group_name']}</option>";
-                                    $iworkGroup++;
-                                }
-                                ?>
+                            <select onchange="updateDepartments()" class="form-control" name="work_group_id" id="work_group_id" onclick="clearBorder(this)">
+                                <option value="">-- เลือกกลุ่มงาน --</option>
                             </select>
                         </div>
                         <div class="col mb-3" id="department_form">
                             <label for="department_id">แผนก</label>
                             <select class="form-control" name="department_id" id="department_id" onclick="clearBorder(this)">
                                 <option value="">-- เลือกแผนก --</option>
-                                <?php
-                                $departmentSql = "SELECT * FROM department";
-                                $departmentStmt = mysqli_prepare($conn, $departmentSql);
-                                mysqli_stmt_execute($departmentStmt);
-                                $departmentData = mysqli_stmt_get_result($departmentStmt);
-
-                                $idepartment = 1;
-
-                                while ($departmentRow = mysqli_fetch_assoc($departmentData)) {
-                                    $selected = ($departmentRow['department_id'] == $row['department_id']) ? 'selected' : '';
-                                    echo "<option value='{$departmentRow['department_id']}' $selected>{$idepartment}. {$departmentRow['department_name']}</option>";
-                                    $idepartment++;
-                                }
-                                ?>
                             </select>
+
                         </div>
                     </div>
                     <div class="col-lg-12 mb-3" id="institute_form">
                         <label for="institute_id">หน่วยงาน</label>
                         <select class="form-control" name="institute_id" id="institute_id" onclick="clearBorder(this)">
-                            <option value="">-- เลือกอาคาร --</option>
+                            <option value="">-- เลือกหน่วยงาน --</option>
                             <?php
-                            $instituteSql = "SELECT * FROM institute";
-                            $instituteStmt = mysqli_prepare($conn, $instituteSql);
-                            mysqli_stmt_execute($instituteStmt);
-                            $instituteData = mysqli_stmt_get_result($instituteStmt);
-
-                            $iinstitute = 1;
-
-                            while ($instituteRow = mysqli_fetch_assoc($instituteData)) {
-                                $selected = ($instituteRow['institute_id'] == $row['institute_id']) ? 'selected' : '';
-                                echo "<option value='{$instituteRow['institute_id']}' $selected>{$iinstitute}. {$instituteRow['institute_name']}</option>";
-                                $ibuilding++;
-                            }
-                            ?>
+                            $sql = "SELECT * FROM institute";
+                            $stmt = $conn->prepare($sql);
+                            $stmt->execute();
+                            $institutes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                            foreach ($institutes as $index => $institute) : ?>
+                                <option <?php echo $category['institute_id'] == $device['institute_id'] ? 'selected' : '' ?> value="<?php echo $institute['institute_id'] ?>"><?php echo $index + 1 ?>. <?php echo $institute['institute_name'] ?></option>";
+                            <?php endforeach; ?>
                         </select>
                     </div>
                     <div class="row">
                         <div class="col mb-3" id="building_form">
                             <label for="building_id">อาคาร</label>
-                            <select class="form-control" name="building_id" id="building_id" onclick="clearBorder(this)">
+                            <select onchange="updateFloors()" class="form-control" name="building_id" id="building_id" onclick="clearBorder(this)">
                                 <option value="">-- เลือกอาคาร --</option>
                                 <?php
-                                $buildingSql = "SELECT * FROM building";
-                                $buildingStmt = mysqli_prepare($conn, $buildingSql);
-                                mysqli_stmt_execute($buildingStmt);
-                                $buildingData = mysqli_stmt_get_result($buildingStmt);
+                                $sql = "SELECT * FROM building";
+                                $stmt = $conn->prepare($sql);
+                                $stmt->execute();
+                                $buildings = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                                $ibuilding = 1;
-
-                                while ($buildingRow = mysqli_fetch_assoc($buildingData)) {
-                                    $selected = ($buildingRow['building_id'] == $row['building_id']) ? 'selected' : '';
-                                    echo "<option value='{$buildingRow['building_id']}' $selected>{$ibuilding}. {$buildingRow['building_name']}</option>";
-                                    $ibuilding++;
-                                }
-                                ?>
+                                foreach ($buildings as $index => $building) : ?>
+                                    <option <?php echo $building['building_id'] == $device['building_id'] ? 'selected' : '' ?> value="<?php echo $building['building_id'] ?>"><?php echo $index + 1 ?>. <?php echo $building['building_name'] ?></option>";
+                                <?php endforeach; ?>
                             </select>
                         </div>
                         <div class="col mb-3" id="floor_form">
                             <label for="floor_id">ชั้น</label>
                             <select class="form-control" name="floor_id" id="floor_id" onclick="clearBorder(this)">
                                 <option value="">-- เลือกชั้น --</option>
-                                <?php
-                                $floorSql = "SELECT * FROM floor LIMIT 10";
-                                $floorStmt = mysqli_prepare($conn, $floorSql);
-                                mysqli_stmt_execute($floorStmt);
-                                $floorData = mysqli_stmt_get_result($floorStmt);
-
-
-                                while ($floorRow = mysqli_fetch_assoc($floorData)) {
-                                    $selected = ($floorRow['floor_id'] == $row['floor_id']) ? 'selected' : '';
-                                    echo "<option value='{$floorRow['floor_id']}' $selected>{$floorRow['floor_name']}</option>";
-                                }
-                                ?>
                             </select>
+                            <script>
+                                function updateWorkGroups() {
+                                    const missionGroupId = document.getElementById('mission_group_id').value;
+                                    const workGroupSelect = document.getElementById('work_group_id');
+                                    const selectedWorkGroupId = "<?php echo $device['work_group_id']; ?>";
+                                    workGroupSelect.innerHTML = '<option value="">-- เลือกกลุ่มงาน --</option>';
+
+                                    if (missionGroupId) {
+                                        fetch(`helper/api/mission_work/works.php?mission_group_id=${missionGroupId}`)
+                                            .then(response => response.json())
+                                            .then(data => {
+                                                data.forEach((workGroup, index) => {
+                                                    const option = document.createElement('option');
+                                                    option.value = workGroup.work_group_id;
+                                                    option.textContent = `${index + 1}. ${workGroup.work_group_name}`;
+                                                    if (workGroup.work_group_id == selectedWorkGroupId) {
+                                                        option.selected = true;
+                                                    }
+                                                    workGroupSelect.appendChild(option);
+                                                });
+                                            });
+                                    }
+                                }
+
+                                function updateDepartments() {
+                                    const workGroupId = document.getElementById('work_group_id').value;
+                                    const departmentSelect = document.getElementById('department_id');
+                                    const selectedDepartmentId = "<?php echo $device['department_id']; ?>";
+                                    departmentSelect.innerHTML = '<option value="">-- เลือกแผนก --</option>';
+
+                                    if (workGroupId) {
+                                        fetch(`helper/api/department/department.php?work_group_id=${workGroupId}`)
+                                            .then(response => response.json())
+                                            .then(data => {
+                                                data.forEach((department, index) => {
+                                                    const option = document.createElement('option');
+                                                    option.value = department.department_id;
+                                                    option.textContent = `${index + 1}. ${department.department_name}`;
+                                                    if (department.department_id == selectedDepartmentId) {
+                                                        option.selected = true;
+                                                    }
+                                                    departmentSelect.appendChild(option);
+                                                });
+                                            });
+                                    }
+                                }
+
+                                function updateFloors() {
+                                    const buildingId = document.getElementById('building_id').value;
+                                    const floorSelect = document.getElementById('floor_id');
+                                    const selectedFloorId = "<?php echo $device['floor_id']; ?>";
+                                    floorSelect.innerHTML = '<option value="">-- ชั้น --</option>';
+                                    if (buildingId) {
+                                        fetch(`helper/api/floor/floor.php?building_id=${buildingId}`)
+                                            .then(response => response.json())
+                                            .then(data => {
+                                                data.forEach((floor, index) => {
+                                                    const option = document.createElement('option');
+                                                    option.value = floor.floor_id;
+                                                    option.textContent = `${index + 1}. ${floor.floor_name}`;
+                                                    if (floor.floor_id == selectedFloorId) {
+                                                        option.selected = true;
+                                                    }
+                                                    floorSelect.appendChild(option);
+                                                });
+                                            });
+                                    }
+                                }
+                            </script>
                         </div>
                     </div>
                     <div class="row">
@@ -180,52 +209,44 @@ $row = mysqli_fetch_assoc($result);
                             <select class="form-control" name="type_id" id="type_id" onclick="clearBorder(this)">
                                 <option value="">-- เลือกประเภท --</option>
                                 <?php
-                                $typeSql = "SELECT * FROM type";
-                                $typeStmt = mysqli_prepare($conn, $typeSql);
-                                mysqli_stmt_execute($typeStmt);
-                                $typeData = mysqli_stmt_get_result($typeStmt);
-
-                                $itype = 1;
-                                while ($typeRow = mysqli_fetch_assoc($typeData)) {
-                                    $selected = ($typeRow['type_id'] == $row['type_id']) ? 'selected' : '';
-                                    echo "<option value='{$typeRow['type_id']}' $selected>{$itype}. {$typeRow['type_name']}</option>";
-                                    $itype++;
-                                }
-                                ?>
+                                $sql = "SELECT * FROM type";
+                                $stmt = $conn->prepare($sql);
+                                $stmt->execute();
+                                $types = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                                foreach ($types as $index => $type) : ?>
+                                    <option value="<?php echo $type['type_id'] ?>"><?php echo $index + 1 ?>. <?php echo $type['type_name'] ?></option>";
+                                <?php endforeach; ?>
                             </select>
                         </div>
                         <div class="col-lg-4 mb-3">
                             <label for="brand">ยี่ห้อ</label>
-                            <input class="form-control" type="text" name="brand" id="brand" placeholder="ยี่ห้อ" value="<?php echo $row['brand'] ?>" onkeydown="clearBorder(this)">
+                            <input class="form-control" type="text" name="brand" id="brand" placeholder="ยี่ห้อ" value="<?php echo $device['brand'] ?>" onkeydown="clearBorder(this)">
                         </div>
                         <div class="col-lg-4 mb-3">
                             <label for="model">รุ่น</label>
-                            <input class="form-control" type="text" name="model" id="model" placeholder="รุ่น" value="<?php echo $row['model'] ?>" onkeydown="clearBorder(this)">
+                            <input class="form-control" type="text" name="model" id="model" placeholder="รุ่น" value="<?php echo $device['model'] ?>" onkeydown="clearBorder(this)">
                         </div>
                         <div class="col-lg-4 mb-3">
                             <label for="serialnumber">Serialnumber</label>
-                            <input class="form-control" type="text" name="serialnumber" placeholder="Serialnumber" value="<?php echo $row['serialnumber'] ?>">
+                            <input class="form-control" type="text" name="serialnumber" placeholder="Serialnumber" value="<?php echo $device['serialnumber'] ?>">
                         </div>
                         <div class="col-lg-12 mb-3">
                             <label for="responsible">ผู้รับผิดชอบ</label>
-                            <input class="form-control" type="text" name="responsible" id="responsible" placeholder="ผู้รับผิดชอบ" value="<?php echo $row['responsible'] ?>" onkeydown="clearBorder(this)" required>
+                            <input class="form-control" type="text" name="responsible" id="responsible" placeholder="ผู้รับผิดชอบ" value="<?php echo $device['responsible'] ?>" onkeydown="clearBorder(this)" required>
                         </div>
                         <div class="col-lg-12 mb-3">
                             <label for="status_id">สถานะ</label>
                             <select class="form-control" name="status_id" id="status_id" onclick="clearBorder(this)" required>
                                 <option value="">-- เลือกสถานะ --</option>
                                 <?php
-                                $statusSql = "SELECT * FROM status";
-                                $statusStmt = mysqli_prepare($conn, $statusSql);
-                                mysqli_stmt_execute($statusStmt);
-                                $statusData = mysqli_stmt_get_result($statusStmt);
+                                $sql = "SELECT * FROM status";
+                                $stmt = $conn->prepare($sql);
+                                $stmt->execute();
+                                $statuses = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                                foreach ($statuses as $index => $status) : ?>
+                                    <option <?php echo $status['status_id'] == $device['status_id'] ? 'selected' : '' ?> value="<?php echo $status['status_id'] ?>"><?php echo $index + 1 ?>. <?php echo $status['status_name'] ?></option>";
 
-
-                                while ($statusRow = mysqli_fetch_assoc($statusData)) {
-                                    $selectedStatus = ($statusRow['status_id'] == $row['status_id']) ? 'selected' : '';
-                                    echo "<option value='{$statusRow['status_id']}' $selectedStatus>{$statusRow['status_name']}</option>";
-                                }
-                                ?>
+                                <?php endforeach; ?>
                             </select>
                         </div>
                         <hr>
@@ -236,7 +257,7 @@ $row = mysqli_fetch_assoc($result);
                                 <div class="input-group-append">
                                     <span class="input-group-text" id="left">พ.ศ.</span>
                                 </div>
-                                <input class="form-control" type="number" min="2500" max="9999" name="year_received" id="year_received" placeholder="ปีที่รับอุปกรณ์" value="<?php echo $row['year_received'] ?>" onkeydown="clearBorder(this)" required>
+                                <input class="form-control" type="number" min="2500" max="9999" name="year_received" id="year_received" placeholder="ปีที่รับอุปกรณ์" value="<?php echo $device['year_received'] ?>" onkeydown="clearBorder(this)" required>
                             </div>
                         </div>
                         <div class="col-lg-4 mb-3">
@@ -245,7 +266,7 @@ $row = mysqli_fetch_assoc($result);
                                 <div class="input-group-append">
                                     <span class="input-group-text" id="left">พ.ศ.</span>
                                 </div>
-                                <input class="form-control" type="text" min="2500" max="9999" name="budget_year" id="budget_year" onkeydown="clearBorder(this)" value="<?php echo $row['budget_year'] ?>" placeholder="ปีงบประมาณ" required>
+                                <input class="form-control" type="text" min="2500" max="9999" name="budget_year" id="budget_year" onkeydown="clearBorder(this)" value="<?php echo $device['budget_year'] ?>" placeholder="ปีงบประมาณ" required>
                             </div>
                         </div>
                         <div class="col-lg-4 mb-3">
@@ -253,18 +274,13 @@ $row = mysqli_fetch_assoc($result);
                             <select class="form-control" name="budget_source_id" id="budget_source_id" onclick="clearBorder(this)" required>
                                 <option value="">-- เลือกแหล่งงบประมาณ --</option>
                                 <?php
-                                $budgetSourceSql = "SELECT * FROM budget_source";
-                                $budgetSourceStmt = mysqli_prepare($conn, $budgetSourceSql);
-                                mysqli_stmt_execute($budgetSourceStmt);
-                                $budgetSourceData = mysqli_stmt_get_result($budgetSourceStmt);
-
-                                $ibudgetSource = 1;
-                                while ($budgetSourceRow = mysqli_fetch_assoc($budgetSourceData)) {
-                                    $selectedBudgetSource = ($budgetSourceRow['budget_source_id'] == $row['budget_source_id']) ? 'selected' : '';
-                                    echo "<option value='{$budgetSourceRow['budget_source_id']}' $selectedBudgetSource>{$ibudgetSource}. {$budgetSourceRow['budget_source_name']}</option>";
-                                    $ibudgetSource++;
-                                }
-                                ?>
+                                $sql = "SELECT * FROM budget_source";
+                                $stmt = $conn->prepare($sql);
+                                $stmt->execute();
+                                $budget_sources = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                                foreach ($budget_sources as $index => $budget_source) : ?>
+                                    <option <?php echo $budget_source['budget_source_id'] == $device['budget_source_id'] ? "selected" : "" ?> value="<?php echo $budget_source['budget_source_id'] ?>"><?php echo $index + 1 ?>. <?php echo $budget_source['budget_source_name'] ?></option>";
+                                <?php endforeach; ?>
                             </select>
                         </div>
                         <div class="col-lg-12 mb-3">
@@ -272,25 +288,19 @@ $row = mysqli_fetch_assoc($result);
                             <select class="form-control" name="old_department" id="old_department" onclick="clearBorder(this)">
                                 <option value="">-- เลือกแผนก --</option>
                                 <?php
-                                $departmentSql = "SELECT * FROM department";
-                                $departmentStmt = mysqli_prepare($conn, $departmentSql);
-                                mysqli_stmt_execute($departmentStmt);
-                                $departmentData = mysqli_stmt_get_result($departmentStmt);
-
-                                $idepartment = 1;
-
-                                while ($departmentRow = mysqli_fetch_assoc($departmentData)) {
-                                    $selected = ($departmentRow['department_id'] == $row['department_id']) ? 'selected' : '';
-                                    echo "<option value='{$departmentRow['department_name']}' $selected>{$idepartment}. {$departmentRow['department_name']}</option>";
-                                    $idepartment++;
-                                }
-                                ?>
+                                $sql = "SELECT * FROM department";
+                                $stmt = $conn->prepare($sql);
+                                $stmt->execute();
+                                $old_departments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                                foreach ($old_departments as $index => $old_department) : ?>
+                                    <option  <?php echo $old_department['department_id'] == $device['old_department'] ? 'selected' : '' ?> value="<?php echo $old_department['department_id'] ?>"><?php echo $index + 1 ?>. <?php echo $old_department['department_name'] ?></option>";
+                                <?php endforeach; ?>
                             </select>
                         </div>
                         <div class="col-lg-4 mb-3">
                             <label for="service_life">อายุการใช้งาน</label>
                             <div class="input-group">
-                                <input class="form-control" type="number" min="0" name="service_life" id="service_life" value="<?php echo $row['service_life'] ?>" placeholder="อายุการใช้งาน">
+                                <input class="form-control" type="number" min="0" name="service_life" id="service_life" value="<?php echo $device['service_life'] ?>" placeholder="อายุการใช้งาน">
                                 <div class="input-group-append">
                                     <span class="input-group-text">ปี</span>
                                 </div>
@@ -299,7 +309,7 @@ $row = mysqli_fetch_assoc($result);
                         <div class="col-lg-4 mb-3">
                             <label for="depreciation">ค่าเสื่อมราคา</label>
                             <div class="input-group">
-                                <input class="form-control" type="number" min="0" max="100" step="0.5" value="<?php echo $row['depreciation'] ?>" name="depreciation" id="depreciation" placeholder="ค่าเสื่อมราคา">
+                                <input class="form-control" type="number" min="0" max="100" step="0.5" value="<?php echo $device['depreciation'] ?>" name="depreciation" id="depreciation" placeholder="ค่าเสื่อมราคา">
                                 <div class="input-group-append">
                                     <span class="input-group-text">%</span>
                                 </div>
@@ -308,7 +318,7 @@ $row = mysqli_fetch_assoc($result);
                         <div class="col-lg-4 mb-3">
                             <label for="netbook_value">มูลค่าสุทธิตามบัญชี</label>
                             <div class="input-group">
-                                <input class="form-control" type="number" min="0" name="netbook_value" value="<?php echo $row['netbook_value'] ?>" id="netbook_value" placeholder="มูลค่าสุทธิตามบัญชี">
+                                <input class="form-control" type="number" min="0" name="netbook_value" value="<?php echo $device['netbook_value'] ?>" id="netbook_value" placeholder="มูลค่าสุทธิตามบัญชี">
                                 <div class="input-group-append">
                                     <span class="input-group-text">บาท</span>
                                 </div>
@@ -316,12 +326,12 @@ $row = mysqli_fetch_assoc($result);
                         </div>
                         <div class="col-lg-4 mb-3">
                             <label for="transfer_date">วันที่โอนมา</label>
-                            <input class="form-control" type="date" name="transfer_date" id="transfer_date" value="<?php echo $row['transfer_date'] ?>" placeholder="วันที่โอนมา">
+                            <input class="form-control" type="date" name="transfer_date" id="transfer_date" value="<?php echo $device['transfer_date'] ?>" placeholder="วันที่โอนมา">
                         </div>
                         <div class="col-lg-4 mb-3">
                             <label for="unit">มูลค่าที่ได้มา</label>
                             <div class="input-group">
-                                <input class="form-control" type="number" min="0" name="unit" id="unit" value="<?php echo $row['unit'] ?>" placeholder="จำนวน">
+                                <input class="form-control" type="number" min="0" name="unit" id="unit" value="<?php echo $device['unit'] ?>" placeholder="จำนวน">
                                 <div class="input-group-append">
                                     <span class="input-group-text">บาท</span>
                                 </div>
@@ -329,24 +339,24 @@ $row = mysqli_fetch_assoc($result);
                         </div>
                         <div class="col-lg-4 mb-3">
                             <label for="change_date">วันที่เกิดการเสื่อม / จำหน่าย</label>
-                            <input class="form-control" type="date" name="change_date" id="change_date" value="<?php echo $row['change_date'] ?>" placeholder="วันที่เกิดการเสื่อม / จำหน่าย">
+                            <input class="form-control" type="date" name="change_date" id="change_date" value="<?php echo $device['change_date'] ?>" placeholder="วันที่เกิดการเสื่อม / จำหน่าย">
                         </div>
                         <div class="col-lg-12 mb-3">
                             <label for="exp_date">วันหมดอายุ</label>
-                            <input class="form-control" type="date" name="exp_date" id="exp_date" value="<?php echo $row['exp_date'] ?>" placeholder="วันหมดอายุ">
+                            <input class="form-control" type="date" name="exp_date" id="exp_date" value="<?php echo $device['exp_date'] ?>" placeholder="วันหมดอายุ">
                         </div>
                         <div class="col-lg-3 mb-3">
                             <label for="shop">ร้านค้า</label>
-                            <input class="form-control" type="text" name="shop" id="shop" value="<?php echo $row['shop'] ?>" placeholder="ร้านค้า">
+                            <input class="form-control" type="text" name="shop" id="shop" value="<?php echo $device['shop'] ?>" placeholder="ร้านค้า">
                         </div>
                         <div class="col-lg-3 mb-3">
                             <label for="warranty_start">วันที่เริ่มรับประกัน</label>
-                            <input class="form-control" type="date" name="warranty_start" id="warranty_start" value="<?php echo $row['warranty_start'] ?>" placeholder="วันที่เริ่มรับประกัน">
+                            <input class="form-control" type="date" name="warranty_start" id="warranty_start" value="<?php echo $device['warranty_start'] ?>" placeholder="วันที่เริ่มรับประกัน">
                         </div>
                         <div class="col-lg-3 mb-3">
                             <label for="warranty">ระยะเวลาประกัน</label>
                             <div class="input-group">
-                                <input class="form-control" type="number" min="0" step="30" name="warranty" id="warranty" value="<?php echo $row['warranty'] ?>" placeholder="ระยะเวลาประกัน">
+                                <input class="form-control" type="number" min="0" step="30" name="warranty" id="warranty" value="<?php echo $device['warranty'] ?>" placeholder="ระยะเวลาประกัน">
                                 <div class="input-group-append">
                                     <span class="input-group-text">วัน</span>
                                 </div>
@@ -354,11 +364,11 @@ $row = mysqli_fetch_assoc($result);
                         </div>
                         <div class="col-lg-3 mb-3">
                             <label for="warranty_end">วันสิ้นสุดประกัน</label>
-                            <input class="form-control" type="date" name="warranty_end" id="warranty_end" value="<?php echo $row['warranty_end'] ?>" placeholder="วันสิ้นสุดประกัน">
+                            <input class="form-control" type="date" name="warranty_end" id="warranty_end" value="<?php echo $device['warranty_end'] ?>" placeholder="วันสิ้นสุดประกัน">
                         </div>
                         <div class="col-lg-12 mb-3">
                             <label for="note">หมายเหตุ</label>
-                            <input class="form-control" type="text" name="note" id="note" value="<?php echo $row['note'] ?>" placeholder="หมายเหตุ">
+                            <input class="form-control" type="text" name="note" id="note" value="<?php echo $device['note'] ?>" placeholder="หมายเหตุ">
                         </div>
                         <hr>
                         <div>
@@ -372,10 +382,6 @@ $row = mysqli_fetch_assoc($result);
             </div>
         </section>
     </main>
-    <?php include_once 'helper/API/building_floor/floors.php' ?>
-    <?php include_once 'helper/API/mission_work/works.php' ?>
-    <?php include_once 'helper/API/department/department.php' ?>
-    <?php include_once 'helper/API/category/category.php' ?>
 </body>
 
 </html>

@@ -9,26 +9,21 @@
             </div>
             <div class="modal-body">
                 <h3 class="head-info">ข้อมูลเบื้องต้น</h3>
-                <form id="add_regis" action="helper/server/add_regis.php" method="post">
+                <form id="add_regis" action="./helper/server/add_regis.php" method="post">
                     <div class="row">
                         <div class="col-lg-12 mb-3">
                             <label for="category_id">หมวดหมู่อุปกรณ์</label>
                             <select class="form-control" name="category_id" id="category_id" onclick="clearBorder(this)" required>
                                 <option value="">-- หมวดหมู่อุปกรณ์ --</option>
                                 <?php
-                                $categorySql = "SELECT * FROM category";
-                                $categoryStmt = mysqli_prepare($conn, $categorySql);
-                                mysqli_stmt_execute($categoryStmt);
-                                $categoryData = mysqli_stmt_get_result($categoryStmt);
+                                $sql = "SELECT * FROM category";
+                                $stmt = $conn->prepare($sql);
+                                $stmt->execute();
+                                $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                                $icategory = 1;
-
-                                while ($categoryRow = mysqli_fetch_assoc($categoryData)) {
-                                    $selected = ($categoryRow['category_id'] == $row['category_id']) ? 'selected' : '';
-                                    echo "<option value='{$categoryRow['category_id']}' $selected>{$icategory}. {$categoryRow['category_name']}</option>";
-                                    $icategory++;
-                                }
-                                ?>
+                                foreach ($categories as $index => $category) : ?>
+                                    <option value="<?php echo $category['category_id'] ?>"><?php echo $index + 1 ?>. <?php echo $category['category_name'] ?></option>";
+                                <?php endforeach; ?>
                             </select>
                         </div>
                         <div class="col-lg-12 mb-3">
@@ -37,123 +32,125 @@
                         </div>
                         <div class="col mb-3" id="mission_group_form">
                             <label for="mission_group_id">กลุ่มภารกิจ</label>
-                            <select class="form-control" name="mission_group_id" id="mission_group_id" onclick="clearBorder(this)" required>
+                            <select onchange="updateWorkGroups()" class="form-control" name="mission_group_id" id="mission_group_id" onclick="clearBorder(this)" required>
                                 <option value="">-- กลุ่มภารกิจ --</option>
                                 <?php
-                                $missionGroupSql = "SELECT * FROM mission_group";
-                                $missionGroupStmt = mysqli_prepare($conn, $missionGroupSql);
-                                mysqli_stmt_execute($missionGroupStmt);
-                                $missionGroupData = mysqli_stmt_get_result($missionGroupStmt);
+                                $sql = "SELECT * FROM mission_group";
+                                $stmt = $conn->prepare($sql);
+                                $stmt->execute();
+                                $mission_groups = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                                $imissionGroup = 1;
-
-                                while ($missionGroupRow = mysqli_fetch_assoc($missionGroupData)) {
-                                    $selected = ($missionGroupRow['mission_group_id'] == $row['mission_group_id']) ? 'selected' : '';
-                                    echo "<option value='{$missionGroupRow['mission_group_id']}' $selected>{$imissionGroup}. {$missionGroupRow['mission_group_name']}</option>";
-                                    $imissionGroup++;
-                                }
-                                ?>
+                                foreach ($mission_groups as $index => $mission_group) : ?>
+                                    <option value="<?php echo $mission_group['mission_group_id'] ?>"><?php echo $index + 1 ?>. <?php echo $mission_group['mission_group_name'] ?></option>";
+                                <?php endforeach; ?>
                             </select>
                         </div>
                         <div class="col mb-3" id="work_group_form">
                             <label for="work_group_id">กลุ่มงาน</label>
-                            <select class="form-control" name="work_group_id" id="work_group_id" onclick="clearBorder(this)" required>
-                                <option value="">-- เลือกแผนก --</option>
-                                <?php
-                                $workGroupSql = "SELECT * FROM work_group";
-                                $workGroupStmt = mysqli_prepare($conn, $workGroupSql);
-                                mysqli_stmt_execute($workGroupStmt);
-                                $workGroupData = mysqli_stmt_get_result($workGroupStmt);
-
-                                $iworkGroup = 1;
-
-                                while ($workGroupRow = mysqli_fetch_assoc($workGroupData)) {
-                                    $selected = ($workGroupRow['work_group_id'] == $row['work_group_id']) ? 'selected' : '';
-                                    echo "<option value='{$workGroupRow['work_group_id']}' $selected>{$iworkGroup}. {$workGroupRow['work_group_name']}</option>";
-                                    $iworkGroup++;
-                                }
-                                ?>
+                            <select onchange="updateDepartments()" class="form-control" name="work_group_id" id="work_group_id" onclick="clearBorder(this)" required>
+                                <option value="">-- เลือกกลุ่มงาน --</option>
                             </select>
                         </div>
                         <div class="col mb-3" id="department_form">
                             <label for="department_id">แผนก</label>
                             <select class="form-control" name="department_id" id="department_id" onclick="clearBorder(this)" required>
                                 <option value="">-- เลือกแผนก --</option>
-                                <?php
-                                $departmentSql = "SELECT * FROM department";
-                                $departmentStmt = mysqli_prepare($conn, $departmentSql);
-                                mysqli_stmt_execute($departmentStmt);
-                                $departmentData = mysqli_stmt_get_result($departmentStmt);
-
-                                $idepartment = 1;
-
-                                while ($departmentRow = mysqli_fetch_assoc($departmentData)) {
-                                    $selected = ($departmentRow['department_id'] == $row['department_id']) ? 'selected' : '';
-                                    echo "<option value='{$departmentRow['department_id']}' $selected>{$idepartment}. {$departmentRow['department_name']}</option>";
-                                    $idepartment++;
-                                }
-                                ?>
                             </select>
+                            <script>
+                                function updateWorkGroups() {
+                                    const missionGroupId = document.getElementById('mission_group_id').value;
+                                    const workGroupSelect = document.getElementById('work_group_id');
+                                    workGroupSelect.innerHTML = '<option value="">-- เลือกกลุ่มงาน --</option>';
+                                    
+                                    if (missionGroupId) {
+                                        fetch(`helper/api/mission_work/works.php?mission_group_id=${missionGroupId}`)
+                                            .then(response => response.json())
+                                            .then(data => {
+                                                data.forEach((workGroup, index) => {
+                                                    const option = document.createElement('option');
+                                                    option.value = workGroup.work_group_id;
+                                                    option.textContent = `${index + 1}. ${workGroup.work_group_name}`;
+                                                    workGroupSelect.appendChild(option);
+                                                });
+                                            });
+                                    }
+                                }
+
+                                function updateDepartments() {
+                                    const workGroupId = document.getElementById('work_group_id').value;
+                                    const departmentSelect = document.getElementById('department_id');
+                                    departmentSelect.innerHTML = '<option value="">-- เลือกแผนก --</option>';
+
+                                    if (workGroupId) {
+                                        fetch(`helper/api/department/department.php?work_group_id=${workGroupId}`)
+                                            .then(response => response.json())
+                                            .then(data => {
+                                                data.forEach((department, index) => {
+                                                    const option = document.createElement('option');
+                                                    option.value = department.department_id;
+                                                    option.textContent = `${index + 1}. ${department.department_name}`;
+                                                    departmentSelect.appendChild(option);
+                                                });
+                                            });
+                                    }
+                                }
+                            </script>
                         </div>
                     </div>
                     <div class="col-lg-12 mb-3" id="institute_form">
                         <label for="institute_id">หน่วยงาน</label>
                         <select class="form-control" name="institute_id" id="institute_id" onclick="clearBorder(this)">
-                            <option value="">-- เลือกหน่วย --</option>
+                            <option value="">-- เลือกหน่วยงาน --</option>
                             <?php
-                            $instituteSql = "SELECT * FROM institute";
-                            $instituteStmt = mysqli_prepare($conn, $instituteSql);
-                            mysqli_stmt_execute($instituteStmt);
-                            $instituteData = mysqli_stmt_get_result($instituteStmt);
-
-                            $iinstitute = 1;
-
-                            while ($instituteRow = mysqli_fetch_assoc($instituteData)) {
-                                $selected = ($instituteRow['institute_id'] == $row['institute_id']) ? 'selected' : '';
-                                echo "<option value='{$instituteRow['institute_id']}' $selected>{$iinstitute}. {$instituteRow['institute_name']}</option>";
-                                $ibuilding++;
-                            }
-                            ?>
+                            $sql = "SELECT * FROM institute";
+                            $stmt = $conn->prepare($sql);
+                            $stmt->execute();
+                            $institutes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                            foreach ($institutes as $index => $institute) : ?>
+                                <option value="<?php echo $institute['institute_id'] ?>"><?php echo $index + 1 ?>. <?php echo $institute['institute_name'] ?></option>";
+                            <?php endforeach; ?>
                         </select>
                     </div>
                     <div class="row">
                         <div class="col mb-3" id="building_form">
                             <label for="building_id">อาคาร</label>
-                            <select class="form-control" name="building_id" id="building_id" onclick="clearBorder(this)" required>
+                            <select onchange="updateFloors()" class="form-control" name="building_id" id="building_id" onclick="clearBorder(this)" required>
                                 <option value="">-- เลือกอาคาร --</option>
                                 <?php
-                                $buildingSql = "SELECT * FROM building";
-                                $buildingStmt = mysqli_prepare($conn, $buildingSql);
-                                mysqli_stmt_execute($buildingStmt);
-                                $buildingData = mysqli_stmt_get_result($buildingStmt);
+                                $sql = "SELECT * FROM building";
+                                $stmt = $conn->prepare($sql);
+                                $stmt->execute();
+                                $buildings = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                                $ibuilding = 1;
-
-                                while ($buildingRow = mysqli_fetch_assoc($buildingData)) {
-                                    $selected = ($buildingRow['building_id'] == $row['building_id']) ? 'selected' : '';
-                                    echo "<option value='{$buildingRow['building_id']}' $selected>{$ibuilding}. {$buildingRow['building_name']}</option>";
-                                    $ibuilding++;
-                                }
-                                ?>
+                                foreach ($buildings as $index => $building) : ?>
+                                    <option value="<?php echo $building['building_id'] ?>"><?php echo $index + 1 ?>. <?php echo $building['building_name'] ?></option>";
+                                <?php endforeach; ?>
                             </select>
                         </div>
                         <div class="col mb-3" id="floor_form">
                             <label for="floor_id">ชั้น</label>
                             <select class="form-control" name="floor_id" id="floor_id" onclick="clearBorder(this)" required>
                                 <option value="">-- เลือกชั้น --</option>
-                                <?php
-                                $floorSql = "SELECT * FROM floor LIMIT 10";
-                                $floorStmt = mysqli_prepare($conn, $floorSql);
-                                mysqli_stmt_execute($floorStmt);
-                                $floorData = mysqli_stmt_get_result($floorStmt);
-
-
-                                while ($floorRow = mysqli_fetch_assoc($floorData)) {
-                                    $selected = ($floorRow['floor_id'] == $row['floor_id']) ? 'selected' : '';
-                                    echo "<option value='{$floorRow['floor_id']}' $selected>{$floorRow['floor_name']}</option>";
-                                }
-                                ?>
                             </select>
+                            <script>
+                                function updateFloors() {
+                                    const buildingId = document.getElementById('building_id').value;
+                                    const floorSelect = document.getElementById('floor_id');
+                                    floorSelect.innerHTML = '<option value="">-- ชั้น --</option>';
+                                    if (buildingId) {
+                                        fetch(`helper/api/floor/floor.php?building_id=${buildingId}`)
+                                            .then(response => response.json())
+                                            .then(data => {
+                                                data.forEach((floor, index) => {
+                                                    const option = document.createElement('option');
+                                                    option.value = floor.floor_id;
+                                                    option.textContent = `${index + 1}. ${floor.floor_name}`;
+                                                    floorSelect.appendChild(option);
+                                                });
+                                            });
+                                    }
+                                }
+                            </script>
                         </div>
                     </div>
                     <div class="row">
@@ -162,18 +159,13 @@
                             <select class="form-control" name="type_id" id="type_id" onclick="clearBorder(this)" required>
                                 <option value="">-- เลือกประเภท --</option>
                                 <?php
-                                $typeSql = "SELECT * FROM type";
-                                $typeStmt = mysqli_prepare($conn, $typeSql);
-                                mysqli_stmt_execute($typeStmt);
-                                $typeData = mysqli_stmt_get_result($typeStmt);
-
-                                $itype = 1;
-                                while ($typeRow = mysqli_fetch_assoc($typeData)) {
-                                    $selected = ($typeRow['type_id'] == $row['type_id']) ? 'selected' : '';
-                                    echo "<option value='{$typeRow['type_id']}' $selected>{$itype}. {$typeRow['type_name']}</option>";
-                                    $itype++;
-                                }
-                                ?>
+                                $sql = "SELECT * FROM type";
+                                $stmt = $conn->prepare($sql);
+                                $stmt->execute();
+                                $types = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                                foreach ($types as $index => $type) : ?>
+                                    <option value="<?php echo $type['type_id'] ?>"><?php echo $index + 1 ?>. <?php echo $type['type_name'] ?></option>";
+                                <?php endforeach; ?>
                             </select>
                         </div>
                         <div class="col-lg-4 mb-3">
@@ -197,17 +189,14 @@
                             <select class="form-control" name="status_id" id="status_id" onclick="clearBorder(this)" required>
                                 <option value="">-- เลือกสถานะ --</option>
                                 <?php
-                                $statusSql = "SELECT * FROM status";
-                                $statusStmt = mysqli_prepare($conn, $statusSql);
-                                mysqli_stmt_execute($statusStmt);
-                                $statusData = mysqli_stmt_get_result($statusStmt);
+                                $sql = "SELECT * FROM status";
+                                $stmt = $conn->prepare($sql);
+                                $stmt->execute();
+                                $statuses = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                                foreach ($statuses as $index => $status) : ?>
+                                    <option value="<?php echo $status['status_id'] ?>"><?php echo $index + 1 ?>. <?php echo $status['status_name'] ?></option>";
 
-
-                                while ($statusRow = mysqli_fetch_assoc($statusData)) {
-                                    $selectedStatus = ($statusRow['status_id'] == $row['status_id']) ? 'selected' : '';
-                                    echo "<option value='{$statusRow['status_id']}' $selectedStatus>{$statusRow['status_name']}</option>";
-                                }
-                                ?>
+                                <?php endforeach; ?>
                             </select>
                         </div>
                         <hr>
@@ -235,18 +224,13 @@
                             <select class="form-control" name="budget_source_id" id="budget_source_id" onclick="clearBorder(this)" required>
                                 <option value="">-- เลือกแหล่งงบประมาณ --</option>
                                 <?php
-                                $budgetSourceSql = "SELECT * FROM budget_source";
-                                $budgetSourceStmt = mysqli_prepare($conn, $budgetSourceSql);
-                                mysqli_stmt_execute($budgetSourceStmt);
-                                $budgetSourceData = mysqli_stmt_get_result($budgetSourceStmt);
-
-                                $ibudgetSource = 1;
-                                while ($budgetSourceRow = mysqli_fetch_assoc($budgetSourceData)) {
-                                    $selectedBudgetSource = ($budgetSourceRow['budget_source_id'] == $row['budget_source_id']) ? 'selected' : '';
-                                    echo "<option value='{$budgetSourceRow['budget_source_id']}' $selectedBudgetSource>{$ibudgetSource}. {$budgetSourceRow['budget_source_name']}</option>";
-                                    $ibudgetSource++;
-                                }
-                                ?>
+                                $sql = "SELECT * FROM budget_source";
+                                $stmt = $conn->prepare($sql);
+                                $stmt->execute();
+                                $budget_sources = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                                foreach ($budget_sources as $index => $budget_source) : ?>
+                                    <option value="<?php echo $budget_source['budget_source_id'] ?>"><?php echo $index + 1 ?>. <?php echo $budget_source['budget_source_name'] ?></option>";
+                                <?php endforeach; ?>
                             </select>
                         </div>
                         <div class="col-lg-12 mb-3">
@@ -254,19 +238,13 @@
                             <select class="form-control" name="old_department" id="old_department" onclick="clearBorder(this)" required>
                                 <option value="">-- เลือกแผนก --</option>
                                 <?php
-                                $departmentSql = "SELECT * FROM department";
-                                $departmentStmt = mysqli_prepare($conn, $departmentSql);
-                                mysqli_stmt_execute($departmentStmt);
-                                $departmentData = mysqli_stmt_get_result($departmentStmt);
-
-                                $idepartment = 1;
-
-                                while ($departmentRow = mysqli_fetch_assoc($departmentData)) {
-                                    $selected = ($departmentRow['department_id'] == $row['department_id']) ? 'selected' : '';
-                                    echo "<option value='{$departmentRow['department_name']}' $selected>{$idepartment}. {$departmentRow['department_name']}</option>";
-                                    $idepartment++;
-                                }
-                                ?>
+                                $sql = "SELECT * FROM department";
+                                $stmt = $conn->prepare($sql);
+                                $stmt->execute();
+                                $old_departments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                                foreach ($old_departments as $index => $old_department) : ?>
+                                    <option value="<?php echo $old_department['department_id'] ?>"><?php echo $index + 1 ?>. <?php echo $old_department['department_name'] ?></option>";
+                                <?php endforeach; ?>
                             </select>
                         </div>
                         <div class="col-lg-4 mb-3">
