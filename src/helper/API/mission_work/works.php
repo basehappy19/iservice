@@ -1,48 +1,21 @@
-<script>
-    $("#work_group_form").hide();
-    $("#mission_group_id").on("change", function() {
-        var missionGroupId = $(this).val();
-        if (missionGroupId) {
-            fetchWorkGroups(missionGroupId);
-        } else {
-            $("#work_group_form").hide();
-            $("#work_group_id").empty().hide();
+<?php
+header('Content-Type: application/json');
 
-        }
-    });
+require_once '../../server/db.php';
 
-    function fetchWorkGroups(missionGroupId) {
-        $.ajax({
-            url: "helper/API/mission_work/get_data.php",
-            type: "POST",
-            data: {
-                missionGroupId: missionGroupId
-            },
-            success: function(data) {
-                if (data.length > 0) {
-                    updateWorkGroupDropdown(data);
-                    $("#work_group_form").show();
-                    $("#work_group_id").show();
-                } else {
-                    $("#work_group_form").hide();
-                    $("#work_group_id").empty().hide();
-                }
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                console.error("Error fetching work groups:", textStatus, errorThrown);
-            },
-        });
+if (isset($_GET['mission_group_id'])) {
+    $mission_group_id = $_GET['mission_group_id'];
+
+    try {
+        $stmt = $conn->prepare("SELECT work_group_id, work_group_name FROM work_group WHERE mission_group_id = :mission_group_id");
+        $stmt->bindParam(':mission_group_id', $mission_group_id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $work_groups = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        echo json_encode($work_groups);
+    } catch (PDOException $e) {
+        echo json_encode(['error' => $e->getMessage()]);
     }
-
-    function updateWorkGroupDropdown(workGroups) {
-        $("#work_group_id").empty();
-        $("#work_group_id").append('<option value="">-- เลือกกลุ่มงาน --</option>');
-
-        $.each(workGroups, function(index, workGroup) {
-            var option = $("<option>").val(workGroup.work_group_id).text(workGroup.work_group_name);
-            $("#work_group_id").append(option);
-        });
-    }
-
-    
-</script>
+} else {
+    echo json_encode(['error' => 'Missing mission_group_id']);
+}

@@ -24,7 +24,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     confirmButtonText: "ยืนยัน",
                 });
                 </script>';
-        header("Location: ../../profile");
+        header("Location: ../../profile.php");
         exit();
     }
 }

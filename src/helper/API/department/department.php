@@ -1,46 +1,21 @@
-<script>
-    $("#department_form").hide();
-    $("#work_group_id").on("change", function() {
-        var workGroupId = $(this).val();
-        if (workGroupId) {
-            fetchDepartments(workGroupId);
-        } else {
-            $("#department_form").hide();
-            $("#department_id").empty().hide();
-        }
-    });
+<?php
+header('Content-Type: application/json');
 
-    function fetchDepartments(workGroupId) {
-        $.ajax({
-            url: "helper/API/department/get_data.php",
-            type: "POST",
-            data: {
-                workGroupId: workGroupId
-            },
-            success: function(data) {
-                if (data.length > 0) {
-                    updateDepartmentDropdown(data);
-                    $("#department_form").show();
-                    $("#department_id").show();
-                } else {
-                    $("#department_form").hide();
-                    $("#department_id").empty().append('<option value="63" selected>-- ไม่มีแผนก --</option>').show();
+require_once '../../server/db.php';
 
-                }
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                console.error("Error fetching departments:", textStatus, errorThrown);
-            },
-        });
+if (isset($_GET['work_group_id'])) {
+    $work_group_id = $_GET['work_group_id'];
+
+    try {
+        $stmt = $conn->prepare("SELECT department_id, department_name FROM department WHERE work_group_id = :work_group_id");
+        $stmt->bindParam(':work_group_id', $work_group_id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $work_groups = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        echo json_encode($work_groups);
+    } catch (PDOException $e) {
+        echo json_encode(['error' => $e->getMessage()]);
     }
-
-    function updateDepartmentDropdown(departments) {
-        $("#department_id").empty();
-        $("#department_id").append('<option value="">-- เลือกแผนก --</option>');
-
-        $.each(departments, function(index, department) {
-            var option = $("<option>").val(department.department_id).text(department.department_name);
-            $("#department_id").append(option);
-        });
-    }
-</script>
+} else {
+    echo json_encode(['error' => 'Missing work_group_id']);
+}

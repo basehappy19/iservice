@@ -1,11 +1,14 @@
 <?php
 $host = "iservice_db";
 $username = "root";
-$password = "rootpassword";
+$password = "root_password";
 $dbname = "iservice";
 $port = 3306;
-$conn = mysqli_connect($host, $username, $password, $dbname, $port);
 
-if (!$conn) {
-    die("เชื่อมต่อกับ database ไม่ได้" . mysqli_connect_error());
+try {
+    $dsn = "mysql:host=$host;port=$port;dbname=$dbname;charset=utf8";
+    $conn = new PDO($dsn, $username, $password);
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    die("เชื่อมต่อกับ database ไม่ได้: " . $e->getMessage());
 }

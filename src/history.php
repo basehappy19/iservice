@@ -1,23 +1,29 @@
 <?php
-include_once 'helper/server/db.php';
 session_start();
+require './helper/server/db.php';
 $device_id = $_GET['device_id'];
-$query = "SELECT * FROM device_broken WHERE device_id = '$device_id'";
-$result = mysqli_query($conn, $query);
-$row = mysqli_fetch_assoc($result);
+$sql = "SELECT * FROM device_broken WHERE device_id = :device_id";
+$stmt = $conn->prepare($sql);
+$stmt->bindParam(":device_id", $device_id, PDO::PARAM_STR);
+$stmt->execute();
+$report = $stmt->fetch(PDO::FETCH_ASSOC);
 
-if (!$result || mysqli_num_rows($result) == 0) {
-    header("Location: dashboard_repair");
+if (empty($report)) {
+    header("Location: ./dashboard_repair");
     exit();
 }
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $history_title = $_POST['title'];
-    $history_des = $_POST['des'];
-    $insert = "INSERT INTO history (device_broken_id, title, des, history_date) VALUES ('$device_id', '$history_title', '$history_des', NOW())";
+    $history_title = $_POST['title'] ?? '';
+    $history_des = $_POST['des'] ?? '';
+    $sql = "INSERT INTO history (history_title, history_des, device_broken_id) VALUES (:history_title, :history_des, :device_broken_id)";
 
-    $insertResult = mysqli_query($conn, $insert);
+    $stmt = $conn->prepare($sql);
+    $stmt->bindParam(":history_title", $history_title, PDO::PARAM_STR);
+    $stmt->bindParam(":history_des", $history_des, PDO::PARAM_STR);
+    $stmt->bindParam(":device_broken_id", $device_id, PDO::PARAM_STR);
 
-    if ($insertResult) {
+    if ($stmt->execute()) {
         $_SESSION['success'] = '<script>
         Swal.fire({
             title: "เพิ่มประวัติเรียบร้อย!",
@@ -27,7 +33,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             confirmButtonText: "โอเค",
         });
         </script>';
-        header("Location: dashboard_repair");
+        header("Location: ./dashboard_repair.php");
         exit();
     }
 }
@@ -50,7 +56,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <section>
             <div class="container mt-3 mx-auto card-con">
                 <h1 class="head-info text-center">เพิ่มประวัติ</h1>
-                <p class="head-info text-center">ข้อมูลแจ้งซ่อมที่ <?php echo $device_id ?></p>
+                <p class="head-info text-center">ข้อมูลแจ้งซ่อม "<?php echo $report['name'] ?>"</p>
                 <form method="post" id="history">
                     <div class="col-lg-12 mb-3">
                         <label for="title">ชื่อหัวข้อประวัติ</label>
@@ -62,7 +68,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     </div>
                     <div class="text-end">
                         <button type="button" class="btn btn-new btn-new-success" onclick="add_history()">ยืนยัน <i class="fa-solid fa-circle-check"></i></button>
-                        <a href="dashboard_repair" class="btn btn-new btn-new-danger">ยกเลิก <i class="fa-solid fa-x"></i></a>
+                        <a href="dashboard_repair.php" class="btn btn-new btn-new-danger">ยกเลิก <i class="fa-solid fa-x"></i></a>
                     </div>
                 </form>
             </div>

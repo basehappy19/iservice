@@ -44,16 +44,16 @@
                         แดชบอร์ด
                     </h6>
                     <p>
-                        <a href="list-item" class="footer-link">ทะเบียนครุภัณฑ์</a>
+                        <a href="list-item.php" class="footer-link">ทะเบียนครุภัณฑ์</a>
                     </p>
                     <p>
-                        <a href="status_repair" class="footer-link">รายการแจ้งซ่อม</a>
+                        <a href="status_repair.php" class="footer-link">รายการแจ้งซ่อม</a>
                     </p>
                     <p>
-                        <a href="status_repair?status_id=2" class="footer-link">ดำเนินการซ่อม</a>
+                        <a href="status_repair.php?status_id=2" class="footer-link">ดำเนินการซ่อม</a>
                     </p>
                     <p>
-                        <a href="status_repair?status_id=1" class="footer-link">ซ่อมเรียบร้อย</a>
+                        <a href="status_repair.php?status_id=1" class="footer-link">ซ่อมเรียบร้อย</a>
                     </p>
                 </div>
 
@@ -66,13 +66,13 @@
                         <a href="./" class="footer-link">หน้าหลัก</a>
                     </p>
                     <p>
-                        <a href="list-item" class="footer-link">ทะเบียนครุภัณฑ์</a>
+                        <a href="list-item.php" class="footer-link">ทะเบียนครุภัณฑ์</a>
                     </p>
                     <p>
-                        <a href="report_repair" class="footer-link">แจ้งซ่อมครุภัณฑ์</a>
+                        <a href="report_repair.php" class="footer-link">แจ้งซ่อมครุภัณฑ์</a>
                     </p>
                     <p>
-                        <a href="status_repair" class="footer-link">สถานะการซ่อม</a>
+                        <a href="status_repair.php" class="footer-link">สถานะการซ่อม</a>
                     </p>
                 </div>
                 <!-- Grid column -->

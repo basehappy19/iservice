@@ -12,7 +12,7 @@
                     <div class="row">
                         <div class="col-lg-12 mb-3">
                             <label for="name">ชื่อหน่วยงาน</label>
-                            <input class="form-control" type="text" name="name" id="name_add" onkeydown="clearBorder(this)" placeholder="ชื่อผู้ใช้">
+                            <input class="form-control" type="text" name="name" id="name_add" onkeydown="clearBorder(this)" placeholder="ชื่อหน่วยงาน">
                         </div>
                     </div>
                 </form>

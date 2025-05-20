@@ -35,14 +35,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES["excelFile"])) {
                 confirmButtonText: "ลองใหม่อีกครั้ง",
                 });
             </script>';
-            header("Location: ../../m_institute");
+            header("Location: ../../m_institute.php");
             exit();
         } else {
             $sql = "INSERT INTO institute (institute_name) VALUES (?)";
             $stmt = mysqli_prepare($conn, $sql);
             mysqli_stmt_bind_param($stmt, "s", $name);
             if (mysqli_stmt_execute($stmt)) {
-                header("Location: ../../m_institute");
+                header("Location: ../../m_institute.php");
             } else {
                 echo "มีข้อผิดพลาดเกิดขึ้น: " . mysqli_error($conn);
             }

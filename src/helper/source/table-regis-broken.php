@@ -18,19 +18,18 @@
         </tr>
     </thead>
     <tbody>
-        <?php $i = 1;
-        while ($row = mysqli_fetch_assoc($data)) : ?>
+        <?php foreach ($reports as $index => $report) : ?>
             <tr>
-                <td><?php echo $i; ?></td>
-                <td><?php echo $row['name']; ?></td>
-                <td><?php echo $row['mission_group_name']; ?></td>
-                <td><?php echo $row['work_group_name']; ?></td>
-                <td><?php echo $row['department_name']; ?></td>
-                <td><?php echo $row['building_name'] . ' ' . $row['floor_name']; ?></td>
-                <td><?php echo $row['type_name']; ?></td>
-                <td><?php echo $row['regis_number']; ?></td>
+                <td><?php echo $index + 1; ?></td>
+                <td><?php echo $report['name']; ?></td>
+                <td><?php echo $report['mission_group_name']; ?></td>
+                <td><?php echo $report['work_group_name']; ?></td>
+                <td><?php echo $report['department_name']; ?></td>
+                <td><?php echo $report['building_name'] . ' ' . $report['floor_name']; ?></td>
+                <td><?php echo $report['type_name']; ?></td>
+                <td><?php echo $report['regis_number']; ?></td>
                 <td class="text-center <?php
-                                        $status_repair_id = $row['status_repair_id'];
+                                        $status_repair_id = $report['status_repair_id'];
                                         if ($status_repair_id == 1) {
                                         ?> normal <?php
                                                 } elseif ($status_repair_id == 2) {
@@ -44,25 +43,24 @@
                                                                                                     }
                                                                                                         ?>
                                         ">
-                    <?php echo $row['status_repair_name']; ?></td>
-                <td><?php echo $row['broken']; ?></td>
-                <td><?php echo $row['date_success_fix_adjusted']; ?></td>
-                <td><?php echo $row['date_report_broken_adjusted']; ?></td>
+                    <?php echo $report['status_repair_name']; ?></td>
+                <td><?php echo $report['broken']; ?></td>
+                <td><?php echo $report['date_success_fix_adjusted']; ?></td>
+                <td><?php echo $report['date_report_broken_adjusted']; ?></td>
                 <td>
                     <?php if (isset($_SESSION['role']) && $_SESSION['role'] == '3') { ?>
-                        <a href="edit-broken.php?device_id=<?php echo $row['device_id'] ?>" class="btn btn-new btn-new-warning">
+                        <a href="edit-broken.php?device_id=<?php echo $report['device_id'] ?>" class="btn btn-new btn-new-warning">
                             แก้ไขข้อมูล <i class="fa-solid fa-pencil"></i>
                         </a>
                     <?php
                     }
                     ?>
-                    <button type="button" class="btn btn-new btn-new-info" data-toggle="modal" data-target="#history<?php echo $row['device_id']; ?>">
+                    <button type="button" class="btn btn-new btn-new-info" data-toggle="modal" data-target="#history<?php echo $report['device_id']; ?>">
                         ดูประวัติ <i class="fa-solid fa-eye"></i>
                     </button>
                 </td>
             </tr>
             <?php include 'helper/source/modal-history.php' ?>
-        <?php $i++;
-        endwhile; ?>
+        <?php endforeach; ?>
     </tbody>
 </table>

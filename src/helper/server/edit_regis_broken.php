@@ -31,9 +31,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     mysqli_stmt_bind_param($stmt, "siiiiisisi", $name, $work_group_id, $building_id, $floor_id, $type_id, $regis_number, $broken, $status_repair_id, $device_id);
 
     if (mysqli_stmt_execute($stmt)) {
-        header("Location: ../../status_repair");
+        header("Location: ../../status_repair.php");
     } else {
-        header("Location: ../../status_repair");
+        header("Location: ../../status_repair.php");
     }
 
     mysqli_stmt_close($stmt);

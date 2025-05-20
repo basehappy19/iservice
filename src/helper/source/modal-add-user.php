@@ -8,7 +8,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form id="add_user" action="helper/server/add_user.php" method="post">
+                <form id="add_user" action="./helper/server/add_user.php" method="post">
                     <div class="row">
                         <div class="col-lg-12 mb-3">
                             <label for="username">ชื่อผู้ใช้</label>
@@ -27,22 +27,23 @@
                             <input class="form-control" type="text" id="name_add" name="name" onkeydown="clearBorder(this)" placeholder="ชื่อ - นามสกุล">
                         </div>
                         <div class="col-lg-12 mb-3">
+                            <label for="phone">เบอร์โทรศัพท์</label>
+                            <input class="form-control" type="tel" id="phone_new" name="phone" onkeydown="clearBorder(this)" placeholder="เบอร์โทรศัพท์">
+                        </div>
+                        <div class="col-lg-12 mb-3">
                             <label for="role_id">ตำแหน่ง</label>
                             <select class="form-control" name="role_id" id="role_id_add" onclick="clearBorder(this)">
                                 <option value="">-- ตำแหน่ง --</option>
                                 <?php
-                                $roleSql = "SELECT * FROM role";
-                                $roleStmt = mysqli_prepare($conn, $roleSql);
-                                mysqli_stmt_execute($roleStmt);
-                                $roleData = mysqli_stmt_get_result($roleStmt);
+                                $sql = "SELECT * FROM role";
+                                $stmt = $conn->prepare($sql);
+                                $stmt->execute();
+                                $roles = $stmt->fetchAll();
 
-                                $irole = 1;
 
-                                while ($roleRow = mysqli_fetch_assoc($roleData)) {
-                                    echo "<option value='{$roleRow['role_id']}'>{$irole}. {$roleRow['role_name']}</option>";
-                                    $irole++;
-                                }
-                                ?>
+                                foreach ($roles as $index => $role) : ?>
+                                    <option value="<?php echo $role['role_id'] ?>"><?php echo $index + 1 ?>. <?php echo $role['role_name'] ?></option>";
+                                <?php endforeach ?>
                             </select>
                         </div>
                         <hr>

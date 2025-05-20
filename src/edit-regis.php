@@ -363,7 +363,7 @@ $row = mysqli_fetch_assoc($result);
                         <hr>
                         <div>
                             <button type="button" onclick="edit_regis()" class="btn btn-new btn-new-success">แก้ไข <i class="fa-solid fa-pencil"></i></button>
-                            <a href="list-item" class="btn btn-new btn-new-danger">
+                            <a href="list-item.php" class="btn btn-new btn-new-danger">
                                 ยกเลิก <i class="fa-solid fa-x"></i>
                             </a>
                         </div>

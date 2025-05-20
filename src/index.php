@@ -1,27 +1,28 @@
 <?php
 session_start();
 require_once 'helper/server/db.php';
-include 'helper/server/status.php';
+require 'helper/server/status.php';
+
 $sql = "SELECT *,
-                DATE_ADD(report.date_report_broken, INTERVAL 543 YEAR) as date_report_broken_adjusted,
-                DATE_ADD(report.date_success_fix, INTERVAL 543 YEAR) as date_success_fix_adjusted
-            FROM report
-            INNER JOIN mission_group ON report.mission_group_id = mission_group.mission_group_id
-            INNER JOIN work_group ON report.work_group_id = work_group.work_group_id
-            INNER JOIN department ON report.department_id = department.department_id
-            INNER JOIN building ON report.building_id = building.building_id
-            INNER JOIN floor ON report.floor_id = floor.floor_id
-            INNER JOIN type ON report.type_id = type.type_id
-            INNER JOIN status_repair ON report.status_repair_id = status_repair.status_repair_id
+                DATE_ADD(device_broken.date_report_broken, INTERVAL 543 YEAR) as date_report_broken_adjusted,
+                DATE_ADD(device_broken.date_success_fix, INTERVAL 543 YEAR) as date_success_fix_adjusted
+            FROM device_broken
+            INNER JOIN mission_group ON device_broken.mission_group_id = mission_group.mission_group_id
+            INNER JOIN work_group ON device_broken.work_group_id = work_group.work_group_id
+            INNER JOIN department ON device_broken.department_id = department.department_id
+            INNER JOIN building ON device_broken.building_id = building.building_id
+            INNER JOIN floor ON device_broken.floor_id = floor.floor_id
+            INNER JOIN type ON device_broken.type_id = type.type_id
+            INNER JOIN status_repair ON device_broken.status_repair_id = status_repair.status_repair_id
             WHERE status_repair.status_repair_id = 1
             ORDER BY status_repair.status_repair_id DESC
             LIMIT 1
     ";
 
-$stmt = mysqli_prepare($conn, $sql);
-mysqli_stmt_execute($stmt);
+$stmt = $conn->prepare($sql);
+$stmt->execute();
+$report = $stmt->fetch(PDO::FETCH_ASSOC);
 
-$data = mysqli_stmt_get_result($stmt);
 
 ?>
 <!DOCTYPE html>
@@ -44,7 +45,7 @@ $data = mysqli_stmt_get_result($stmt);
                         <h3 class="text-center">สถิติข้อมูล</h3>
                         <div class="row">
                             <div class="col col-md col-sm my-3 animate__animated animate__zoomIn animate__fast">
-                                <a href="list-item">
+                                <a href="list-item.php">
                                     <div class="card-bg card-bg1">
                                         <h1 class="count count-running" id="runningNumber1">10</h1>
                                         <h3 class="head-info">ทะเบียนครุภัณฑ์</h3>
@@ -54,10 +55,10 @@ $data = mysqli_stmt_get_result($stmt);
                             </div>
                             <div class="col col-md col-sm my-3 animate__animated animate__zoomIn animate__fast">
                                 <a href="<?php if (isset($_SESSION['role']) && $_SESSION['role'] == '2') {
-                                            ?> dashboard_repair <?php
-                                                            } else {
-                                                                ?> status_repair<?php
-                                                                            } ?>">
+                                            ?> dashboard_repair.php <?php
+                                                                } else {
+                                                                    ?> status_repair<?php
+                                                                                } ?>">
                                     <div class="card-bg card-bg2">
                                         <h1 class="count count-running" id="runningNumber2">20</h1>
                                         <h3 class="head-info">รายการแจ้งซ่อม</h3>
@@ -68,7 +69,7 @@ $data = mysqli_stmt_get_result($stmt);
                         </div>
                         <div class="row">
                             <div class="col col-md col-sm my-3 animate__animated animate__zoomIn animate__fast">
-                                <a href="status_repair?status_id=2">
+                                <a href="status_repair.php?status_id=2">
                                     <div class="card-bg card-bg3">
                                         <h1 class="count" id="runningNumber3">30</h1>
                                         <h3 class="head-info">ดำเนินการซ่อม</h3>
@@ -77,7 +78,7 @@ $data = mysqli_stmt_get_result($stmt);
                                 </a>
                             </div>
                             <div class="col col-md col-sm my-3 animate__animated animate__zoomIn animate__fast">
-                                <a href="status_repair?status_id=1">
+                                <a href="status_repair.php?status_id=1">
                                     <div class="card-bg card-bg4">
                                         <h1 class="count count-running" id="runningNumber4">40</h1>
                                         <h3 class="head-info">ซ่อมเรียบร้อย</h3>
@@ -91,7 +92,7 @@ $data = mysqli_stmt_get_result($stmt);
                         <h3 class="text-center">เมนู</h3>
                         <div class="row">
                             <div class="col col-md col-sm my-3 animate__animated animate__zoomIn animate__fast">
-                                <a href="list-item">
+                                <a href="list-item.php">
                                     <div class="card-bg card-bgs1" style="height: 264.8px;">
                                         <h3 class="head-info mb-5">ทะเบียนครุภัณฑ์</h3>
                                         <div class="my-3 text-end"><img src="helper/icon/Open Box-3d.svg" alt="" srcset="" width="100px" height="100px"></div>
@@ -101,7 +102,7 @@ $data = mysqli_stmt_get_result($stmt);
                         </div>
                         <div class="row">
                             <div class="col col-md col-sm my-3 animate__animated animate__zoomIn animate__fast">
-                                <a href="report_repair">
+                                <a href="report_repair.php">
                                     <div class="card-bg card-bgs2" style="height: 264.8px;">
                                         <h3 class="head-info mb-5">แจ้งซ่อม</h3>
                                         <div class="my-3 text-end"><img src="helper/icon/Drill-3d.svg" alt="" srcset="" width="100px" height="100px"></div>
@@ -109,7 +110,7 @@ $data = mysqli_stmt_get_result($stmt);
                                 </a>
                             </div>
                             <div class="col col-md col-sm my-3 animate__animated animate__zoomIn animate__fast">
-                                <a href="status_repair">
+                                <a href="status_repair.php">
                                     <div class="card-bg card-bgs3" style="height: 264.8px;">
                                         <h3 class="head-info mb-5">สถานะการซ่อม</h3>
                                         <div class="my-3 text-end"><img src="helper/icon/USB Connected-3d.svg" alt="" srcset="" width="100px" height="100px"></div>
@@ -122,41 +123,39 @@ $data = mysqli_stmt_get_result($stmt);
                         <div class="card-bg card-success-fix-recent animate__animated animate__zoomIn animate__fast">
                             <div class="recent animate__animated animate__pulse animate__fast animate__infinite">ซ่อมเรียบร้อยล่าสุด</div>
                             <div class="fix-recent">
-                                <?php if (mysqli_num_rows($data) > 0) : ?>
-                                    <?php while ($row = mysqli_fetch_assoc($data)) : ?>
+                                <?php if ($report && isset($report)) : ?>
+                                    <div class="mb-3">
+                                        <h4><?php echo $report['name'] ?></h4>
+                                    </div>
+                                    <div class="mb-3">
+                                        <p><strong>กลุ่มภารกิจ : </strong><?php echo $report['mission_group_name'] ?></p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <p><strong>กลุ่มงาน : </strong><?php echo $report['work_group_name'] ?></p>
+                                    </div>
+                                    <?php if (!empty($report['department_name'])) : ?>
                                         <div class="mb-3">
-                                            <h4><?php echo $row['name'] ?></h4>
+                                            <p><strong>แผนก : </strong><?php echo $report['department_name']; ?></p>
                                         </div>
-                                        <div class="mb-3">
-                                            <p><strong>กลุ่มภารกิจ : </strong><?php echo $row['mission_group_name'] ?></p>
-                                        </div>
-                                        <div class="mb-3">
-                                            <p><strong>กลุ่มงาน : </strong><?php echo $row['work_group_name'] ?></p>
-                                        </div>
-                                        <?php if (!empty($row['department_name'])) { ?>
-                                            <div class="mb-3">
-                                                <p><strong>แผนก : </strong><?php echo $row['department_name']; ?></p>
-                                            </div>
-                                        <?php } ?>
-                                        <div class="mb-3">
-                                            <p><strong>อาคาร / ชั้น : </strong><?php echo $row['building_name'] ?></p>
-                                        </div>
-                                        <div class="mb-3">
-                                            <p><strong>ประเภท : </strong><?php echo $row['type_name'] ?></p>
-                                        </div>
-                                        <div class="mb-3">
-                                            <p><strong>เลขครุภัณฑ์ : </strong><?php echo $row['regis_number'] ?></p>
-                                        </div>
-                                        <div class="mb-3">
-                                            <p><strong>อาการ : </strong><?php echo $row['broken'] ?></p>
-                                        </div>
-                                        <div class="mb-3">
-                                            <p><strong>วันที่ซ่อมเสร็จเรียบร้อย : </strong><?php echo $row['date_success_fix_adjusted'] ?></p>
-                                        </div>
-                                        <div class="mb-3">
-                                            <p><strong>วันที่แจ้งซ่อม : </strong><?php echo $row['date_report_broken_adjusted'] ?></p>
-                                        </div>
-                                    <?php endwhile ?>
+                                    <?php endif; ?>
+                                    <div class="mb-3">
+                                        <p><strong>อาคาร / ชั้น : </strong><?php echo $report['building_name'] ?></p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <p><strong>ประเภท : </strong><?php echo $report['type_name'] ?></p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <p><strong>เลขครุภัณฑ์ : </strong><?php echo $report['regis_number'] ?></p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <p><strong>อาการ : </strong><?php echo $report['broken'] ?></p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <p><strong>วันที่ซ่อมเสร็จเรียบร้อย : </strong><?php echo $report['date_success_fix_adjusted'] ?></p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <p><strong>วันที่แจ้งซ่อม : </strong><?php echo $report['date_report_broken_adjusted'] ?></p>
+                                    </div>
                                 <?php else : ?>
                                     <h3 class="head-info">ยังไม่มีข้อมูลซ่อมเรียบร้อยล่าสุด</h3>
                                 <?php endif; ?>

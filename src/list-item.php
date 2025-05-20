@@ -24,14 +24,11 @@ if (isset($_GET['category'])) {
                 INNER JOIN type ON device.type_id = type.type_id
                 INNER JOIN status ON device.status_id = status.status_id
                 INNER JOIN budget_source ON device.budget_source_id = budget_source.budget_source_id
-                WHERE category.category_id = ?";
-    $stmt = mysqli_prepare($conn, $sql);
-
-    mysqli_stmt_bind_param($stmt, "i", $selected_category);
-
-    mysqli_stmt_execute($stmt);
-
-    $data = mysqli_stmt_get_result($stmt);
+                WHERE category.category_id = :category_id";
+    $stmt = $conn->prepare($sql);
+    $stmt->bindParam(":category_id", $selected_category, PDO::PARAM_INT);
+    $stmt->execute();
+    $devices = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } else {
 
     $sql = "SELECT *, UPPER(brand) as brand,
@@ -54,10 +51,10 @@ if (isset($_GET['category'])) {
             INNER JOIN budget_source ON device.budget_source_id = budget_source.budget_source_id
     ";
 
-    $stmt = mysqli_prepare($conn, $sql);
-    mysqli_stmt_execute($stmt);
-
-    $data = mysqli_stmt_get_result($stmt);
+    $stmt = $conn->prepare($sql);
+    $stmt->execute();
+    $devices = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
 }
 
 ?>
@@ -93,17 +90,17 @@ if (isset($_GET['category'])) {
                         </button>
                     <?php } ?>
                     <?php if (isset($_GET['category']) && $_GET['category'] == '1') { ?>
-                        <a href="list-item" class="btn btn-new btn-new-info">
+                        <a href="list-item.php" class="btn btn-new btn-new-info">
                             <i class="fa-solid fa-list"></i> ทั้งหมด
                         </a>
                     <?php } ?>
                     <?php if (!isset($selected_category) || $selected_category == '1') { ?>
-                        <a href="list-item?category=2" class="btn btn-new btn-new-info">
+                        <a href="list-item.php?category=2" class="btn btn-new btn-new-info">
                             <i class="fa-solid fa-heart-circle-bolt"></i> อุปกรณ์การแพทย์
                         </a>
                     <?php } else {
                         (isset($selected_category) || $selected_category == '2') ?>
-                        <a href="list-item?category=1" class="btn btn-new btn-new-info">
+                        <a href="list-item.php?category=1" class="btn btn-new btn-new-info">
                             <i class="fa-solid fa-computer"></i> อุปกรณ์คอมพิวเตอร์
                         </a>
                     <?php } ?>

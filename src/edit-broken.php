@@ -216,7 +216,7 @@ $row = mysqli_fetch_assoc($result);
                         <hr>
                         <div>
                             <button type="button" onclick="edit_regis_broken()" class="btn btn-new btn-new-success">แก้ไข <i class="fa-solid fa-pencil"></i></button>
-                            <a href="status_repair" class="btn btn-new btn-new-danger">
+                            <a href="status_repair.php" class="btn btn-new btn-new-danger">
                                 <span aria-hidden="true">ยกเลิก <i class="fa-solid fa-x"></i></span>
                             </a>
                         </div>

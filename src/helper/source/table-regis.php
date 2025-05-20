@@ -39,66 +39,59 @@
         </tr>
     </thead>
     <tbody>
-        <?php $i = 1;
-        while ($row = mysqli_fetch_assoc($data)) : ?>
+        <?php foreach ($devices as $device => $index) : ?>
             <tr>
-                <td><?php echo $i; ?></td>
-                <td><?php echo $row['regis_number']; ?></td>
-                <td><?php echo $row['mission_group_name']; ?></td>
-                <td><?php echo $row['work_group_name']; ?></td>
-                <td><?php echo $row['department_name']; ?></td>
-                <td><?php echo $row['institute_name']; ?></td>
-                <td><?php echo $row['building_name'] . ' ' . $row['floor_name']; ?></td>
-                <td><?php echo $row['type_name']; ?></td>
-                <td><?php echo $row['brand']; ?></td>
-                <td><?php echo $row['model']; ?></td>
-                <td><?php echo $row['responsible']; ?></td>
-                <td><?php echo $row['year_received']; ?></td>
-                <td class="text-center <?php
-                                        $status_id = $row['status_id'];
-                                        if ($status_id == 1) {
-                                            echo 'normal';
-                                        } elseif ($status_id == 2) {
-                                            echo 'sell';
-                                        } elseif ($status_id == 3) {
-                                            echo 'wait-sell';
-                                        } elseif ($status_id == 4) {
-                                            echo 'broken';
-                                        } elseif ($status_id == 5) {
-                                            echo 'useless';
-                                        }
-                                        ?>
-                                        ">
-                    <?php echo $row['status_name']; ?></td>
-                <td><?php echo $row['budget_year']; ?></td>
-                <td><?php echo $row['budget_source_name']; ?></td>
-                <td><?php echo $row['old_department']; ?></td>
-                <td><?php echo $row['regis_date']; ?></td>
-                <td><?php echo !isset($row['service_life']) ? $row['service_life'] . ' ปี' : ''; ?></td>
-                <td><?php echo !isset($row['depreciation']) ? $row['depreciation'] . '%' : ''; ?></td>
-                <td><?php echo !isset($row['netbook_value']) ? $row['netbook_value'] . ' บาท' : ''; ?></td>
-                <td><?php echo !isset($row['serialnumber']) ? $row['serialnumber'] : ''; ?></td>
-                <td><?php echo !isset($row['transfer_date']) ? $row['transfer_date'] : ''; ?></td>
-                <td><?php echo !isset($row['unit']) ? $row['unit'] . ' บาท' : ''; ?></td>
-                <td><?php echo $row['change_date']; ?></td>
-                <td><?php echo $row['exp_date']; ?></td>
-                <td><?php echo $row['shop']; ?></td>
-                <td><?php echo $row['warranty_start']; ?></td>
-                <td><?php echo $row['warranty']; ?></td>
-                <td><?php echo $row['warranty_end']; ?></td>
-                <td><?php echo $row['note']; ?></td>
-                <?php if (isset($_SESSION['role']) && $_SESSION['role'] == '3') { ?>
+                <td><?php echo $index + 1; ?></td>
+                <td><?php echo $device['regis_number']; ?></td>
+                <td><?php echo $device['mission_group_name']; ?></td>
+                <td><?php echo $device['work_group_name']; ?></td>
+                <td><?php echo $device['department_name']; ?></td>
+                <td><?php echo $device['institute_name']; ?></td>
+                <td><?php echo $device['building_name'] . ' ' . $device['floor_name']; ?></td>
+                <td><?php echo $device['type_name']; ?></td>
+                <td><?php echo $device['brand']; ?></td>
+                <td><?php echo $device['model']; ?></td>
+                <td><?php echo $device['responsible']; ?></td>
+                <td><?php echo $device['year_received']; ?></td>
+                <td class="text-center 
+                    <?php
+                    $status_classes = [
+                        1 => 'normal',
+                        2 => 'sell',
+                        3 => 'wait-sell',
+                        4 => 'broken',
+                        5 => 'useless'
+                    ];
+                    echo isset($status_classes[$device['status_id']]) ? $status_classes[$device['status_id']] : '';
+                    ?>">
+                    <?php echo $device['status_name']; ?></td>
+                <td><?php echo $device['budget_year']; ?></td>
+                <td><?php echo $device['budget_source_name']; ?></td>
+                <td><?php echo $device['old_department']; ?></td>
+                <td><?php echo $device['regis_date']; ?></td>
+                <td><?php echo isset($device['service_life']) ? $device['service_life'] . ' ปี' : ''; ?></td>
+                <td><?php echo isset($device['depreciation']) ? $device['depreciation'] . '%' : ''; ?></td>
+                <td><?php echo isset($device['netbook_value']) ? $device['netbook_value'] . ' บาท' : ''; ?></td>
+                <td><?php echo isset($device['serialnumber']) ? $device['serialnumber'] : ''; ?></td>
+                <td><?php echo isset($device['transfer_date']) ? $device['transfer_date'] : ''; ?></td>
+                <td><?php echo isset($device['unit']) ? $device['unit'] . ' บาท' : ''; ?></td>
+                <td><?php echo $device['change_date']; ?></td>
+                <td><?php echo $device['exp_date']; ?></td>
+                <td><?php echo $device['shop']; ?></td>
+                <td><?php echo $device['warranty_start']; ?></td>
+                <td><?php echo $device['warranty']; ?></td>
+                <td><?php echo $device['warranty_end']; ?></td>
+                <td><?php echo $device['note']; ?></td>
+                <?php if (isset($_SESSION['role']) && $_SESSION['role'] == '3') : ?>
                     <td>
-                        <a href="edit-regis.php?device_id=<?php echo $row['device_id']; ?>" class="btn btn-new btn-new-warning">
+                        <a href="edit-regis.php?device_id=<?php echo $device['device_id']; ?>" class="btn btn-new btn-new-warning">
                             แก้ไขข้อมูล <i class="fa-solid fa-pencil"></i>
                         </a>
                     </td>
                 <?php
-                }
+                endif;
                 ?>
             </tr>
-
-        <?php $i++;
-        endwhile; ?>
+        <?php endforeach; ?>
     </tbody>
 </table>

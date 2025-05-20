@@ -1,70 +1,96 @@
 <?php
 session_start();
+require 'db.php'; 
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    require_once 'db.php'; 
 
     $user_id = $_SESSION['user_id'];
-    $newUsername = htmlspecialchars($_POST['username']);
-    $name = htmlspecialchars($_POST['name']);
-    $phone = htmlspecialchars($_POST['phone']);
 
-    $checkUsernameQuery = "SELECT * FROM user WHERE username = ? AND user_id != ?";
-    $stmt = mysqli_prepare($conn, $checkUsernameQuery);
-    mysqli_stmt_bind_param($stmt, "si", $newUsername, $user_id);
-    mysqli_stmt_execute($stmt);
-    mysqli_stmt_store_result($stmt);
-    $rows = mysqli_stmt_num_rows($stmt);
-    mysqli_stmt_close($stmt);
+    $sql = "SELECT * FROM user WHERE user_id = :user_id";
+    $stmt = $conn->prepare($sql);
+    $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+    $stmt->execute();
     
-    if ($rows > 0) {
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$user) {
         $_SESSION['error'] = '<script>
         Swal.fire({
             icon: "error",
-            title: "มีชื่อผู้ใช้ซ้ำแล้ว",
-            text: "โปรดเลือกชื่อผู้ใช้อื่น!",
-            confirmButtonColor: "#e25f5f",
-            confirmButtonText: "ลองใหม่อีกครั้ง",
+            title: "เกิดข้อผิดพลาด",
+            text: "ไม่พบข้อมูลผู้ใช้",
+            confirmButtonColor: "#ff7961",
+            confirmButtonText: "ลองอีกครั้ง",
         });
         </script>';
-        header("Location: ../../profile");
+        header("Location: ../../profile.php");
         exit();
     }
+
+    $new_username = $_POST['username'] ?? $user['username'];
+    $name = $_POST['name'] ?? $user['name'];
+    $phone = $_POST['phone'] ?? $user['phone'];
+
+    $check_username_already = "SELECT * FROM user WHERE username = :username";
+    $stmt = $conn->prepare($check_username_already);
+    $stmt->bindParam(':username', $new_username, PDO::PARAM_STR);
+    $stmt->execute();
+    $check_username = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($check_username) {
+        $_SESSION['error'] = '<script>
+        Swal.fire({
+            icon: "error",
+            title: "ชื่อผู้ใช้ซ้ำ",
+            text: "ชื่อผู้ใช้ที่คุณเลือกมีอยู่แล้ว โปรดลองอีกครั้ง",
+            confirmButtonColor: "#ff7961",
+            confirmButtonText: "ลองอีกครั้ง",
+        });
+        </script>';
+        header("Location: ../../profile.php");
+        exit();
+    }
+
+    
     if (isset($_FILES['profile_pic']) && $_FILES['profile_pic']['error'] === UPLOAD_ERR_OK) {
         $file_name = $_FILES['profile_pic']['name'];
+        $file_name = preg_replace('/[^a-zA-Z0-9._-]/', '', $file_name);
         $file_tmp_name = $_FILES['profile_pic']['tmp_name'];
         $file_ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
         $allowed_extensions = array("jpg", "jpeg", "png");
 
         if (in_array($file_ext, $allowed_extensions)) {
-            $file_folder = '../data/profile/' . $user_id . '_' . $file_name;
             $file_destination = $user_id . '_' . $file_name;
+            $file_folder = '../data/profile/' . $file_destination;
+
             if (move_uploaded_file($file_tmp_name, $file_folder)) {                
-                $sql = "UPDATE user SET profile_pic = '$file_destination' WHERE user_id = '$user_id'";
-                    
-                if (mysqli_query($conn, $sql)) {
+                $sql = "UPDATE user SET profile_pic = :profile_pic WHERE user_id = :user_id";
+                $stmt = $conn->prepare($sql);
+                $stmt->bindParam(':profile_pic', $file_destination, PDO::PARAM_STR);
+                $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+                if ($stmt->execute()) {
                     $_SESSION['success'] = '<script>
                     Swal.fire({
                         icon: "success",
                         title: "เรียบร้อย!",
-                        text: "อัปโหลดรูปโปรไฟล์เรียบร้อย!",
+                        text: "อัพเดทข้อมูลผู้ใช้เรียบร้อย!",
                         confirmButtonColor: "#5fe280",
                         confirmButtonText: "โอเค",
                     });
                     </script>';
-                    header("Location: ../../profile");
+                    header("Location: ../../profile.php");
                 } else {
                     $_SESSION['error'] = '<script>
                     Swal.fire({
                         icon: "error",
                         title: "เกิดข้อผิดพลาด",
-                        text: "มีข้อผิดพลาดในการบันทึกข้อมูล",
+                        text: "ไม่สามารถอัปเดตข้อมูลผู้ใช้ได้",
                         confirmButtonColor: "#ff7961",
                         confirmButtonText: "ลองอีกครั้ง",
                     });
                     </script>';
-                    header("Location: ../../profile");
+                    header("Location: ../../profile.php");
                 }
+                
             } else {
                 $_SESSION['error'] = '<script>
                 Swal.fire({
@@ -75,7 +101,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     confirmButtonText: "ลองอีกครั้ง",
                 });
                 </script>';
-                header("Location: ../../profile");
+                header("Location: ../../profile.php");
             }
         } else {
             $_SESSION['error'] = '<script>
@@ -88,26 +114,38 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 footer: "รองรับแค่ไฟล์ชนิด jpg jpeg png",
             });
             </script>';
-            header("Location: ../../profile");
+            header("Location: ../../profile.php");
         }
     } 
 
-    $sql = "UPDATE user SET username = ?, name = ?, phone = ? WHERE user_id = ?";
-    $stmt = mysqli_prepare($conn, $sql);
-    mysqli_stmt_bind_param($stmt, "sssi", $newUsername, $name, $phone, $user_id);
-    if (mysqli_stmt_execute($stmt)) {
+    $sql = "UPDATE user SET username = :username, name = :name, phone = :phone WHERE user_id = :user_id";
+    $stmt = $conn->prepare($sql);
+    $stmt->bindParam(':username', $new_username, PDO::PARAM_STR);
+    $stmt->bindParam(':name', $name, PDO::PARAM_STR);
+    $stmt->bindParam(':phone', $phone, PDO::PARAM_STR);
+    $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+    if ($stmt->execute()) {
         $_SESSION['success'] = '<script>
         Swal.fire({
-        icon: "success",
-        title: "เรียบร้อย!",
-        text: "อัพเดทข้อมูลผู้ใช้เรียบร้อย!",
-        confirmButtonColor: "#5fe280",
-        confirmButtonText: "โอเค",
+            icon: "success",
+            title: "เรียบร้อย!",
+            text: "อัพเดทข้อมูลผู้ใช้เรียบร้อย!",
+            confirmButtonColor: "#5fe280",
+            confirmButtonText: "โอเค",
         });
         </script>';
-        header("Location: ../../profile");
+        header("Location: ../../profile.php");
+    } else {
+        $_SESSION['error'] = '<script>
+        Swal.fire({
+            icon: "error",
+            title: "เกิดข้อผิดพลาด",
+            text: "ไม่สามารถอัปเดตข้อมูลผู้ใช้ได้",
+            confirmButtonColor: "#ff7961",
+            confirmButtonText: "ลองอีกครั้ง",
+        });
+        </script>';
+        header("Location: ../../profile.php");
     }
-    mysqli_stmt_close($stmt);
-    mysqli_close($conn);
 }
 

@@ -1,16 +1,15 @@
 <?php
-require_once 'helper/server/db.php';
 session_start();
+require './helper/server/db.php';
 
 if (!isset($_SESSION['role']) || $_SESSION['role'] != '4') {
-    header("Location: login");
+    header("Location: ./login.php");
 }
 
 $sql = "SELECT * FROM institute";
-$stmt = mysqli_prepare($conn, $sql);
-mysqli_stmt_execute($stmt);
-
-$data = mysqli_stmt_get_result($stmt);
+$stmt = $conn->prepare($sql);
+$stmt->execute();
+$institutes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 ?>
 
@@ -52,26 +51,20 @@ $data = mysqli_stmt_get_result($stmt);
                         </tr>
                     </thead>
                     <tbody>
-                        <?php $i = 0;
-                        while ($row = mysqli_fetch_assoc($data)) : ?>
-                            <?php if ($row['institute_id'] != 1) : ?>
+                        <?php foreach ($institutes as $index => $institute) : ?>
                             <tr>
-                                <td><?php echo $i; ?></td>
-                                <td><?php echo $row['institute_name']; ?></td>
+                                <td><?php echo $index + 1; ?></td>
+                                <td><?php echo $institute['institute_name']; ?></td>
                                 <td>
-                                    <?php if ($row['institute_id'] != 1) : ?>
-                                    <button type="button" class="btn btn-new btn-new-warning" data-toggle="modal" data-target="#edit_instituteModal<?php echo $row['institute_id']; ?>">
-                                                แก้ไขข้อมูล <i class="fa-solid fa-pencil"></i>
+                                    <button type="button" class="btn btn-new btn-new-warning" data-toggle="modal" data-target="#edit_instituteModal<?php echo $institute['institute_id']; ?>">
+                                        แก้ไขข้อมูล <i class="fa-solid fa-pencil"></i>
                                     </button>
-                                    <button type="button" class="btn btn-new btn-new-danger" onclick="delete_institute('helper/server/delete_institute.php?id=<?php echo $row['institute_id'] ?>')">ลบหน่วยงาน</button>
-                                    <?php endif; ?>
+                                    <button type="button" class="btn btn-new btn-new-danger" onclick="delete_institute('./helper/server/delete_institute.php?id=<?php echo $institute['institute_id'] ?>')">ลบหน่วยงาน</button>
                                 </td>
                             </tr>
-                            <?php endif; ?>
-                            <?php include 'helper/source/modal-edit-institute.php' ?>
-                            <?php include 'helper/source/modal-add-institute.php' ?>
-                        <?php $i++;
-                        endwhile;  ?>
+                            <?php include './helper/source/modal-edit-institute.php' ?>
+                        <?php endforeach; ?>
+                        <?php include './helper/source/modal-add-institute.php' ?>
                     </tbody>
                 </table>
             </div>

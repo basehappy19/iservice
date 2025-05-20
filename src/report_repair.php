@@ -1,5 +1,9 @@
-<?php require_once 'helper/server/db.php';
-session_start(); ?>
+<?php
+session_start();
+require_once './helper/server/db.php';
+
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -49,14 +53,13 @@ session_start(); ?>
                             <select class="form-control" name="category_id" id="category_id" onclick="clearBorder(this)" required>
                                 <option value="">-- หมวดหมู่อุปกรณ์ --</option>
                                 <?php
-                                $categorySql = "SELECT * FROM category";
-                                $categoryStmt = mysqli_prepare($conn, $categorySql);
-                                mysqli_stmt_execute($categoryStmt);
-                                $categoryData = mysqli_stmt_get_result($categoryStmt);
+                                $category_sql = "SELECT * FROM category";
+                                $category_stmt = $conn->prepare($category_sql);
+                                $category_stmt->execute();
+                                $categories = $category_stmt->fetchAll(PDO::FETCH_ASSOC);
 
                                 $icategory = 1;
-
-                                while ($categoryRow = mysqli_fetch_assoc($categoryData)) {
+                                foreach ($categories as $categoryRow) {
                                     $selected = ($categoryRow['category_id'] == $row['category_id']) ? 'selected' : '';
                                     echo "<option value='{$categoryRow['category_id']}' $selected>{$icategory}. {$categoryRow['category_name']}</option>";
                                     $icategory++;
@@ -71,16 +74,14 @@ session_start(); ?>
                             <select class="form-control" name="type_id" id="type_id" onclick="clearBorder(this)" required>
                                 <option value="">-- เลือกประเภท --</option>
                                 <?php
-                                $typeSql = "SELECT * FROM type";
-                                $typeStmt = mysqli_prepare($conn, $typeSql);
-                                mysqli_stmt_execute($typeStmt);
-                                $typeData = mysqli_stmt_get_result($typeStmt);
+                                $type_sql = "SELECT * FROM type";
+                                $type_stmt = $conn->prepare($type_sql);
+                                $type_stmt->execute();
+                                $types = $type_stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                                $itype = 1;
-                                while ($typeRow = mysqli_fetch_assoc($typeData)) {
-                                    $selected = ($typeRow['type_id'] == $row['type_id']) ? 'selected' : '';
-                                    echo "<option value='{$typeRow['type_id']}' $selected>{$itype}. {$typeRow['type_name']}</option>";
-                                    $itype++;
+                                foreach ($types as $index => $type) {
+                                    $selected = ($type['type_id'] == $row['type_id']) ? 'selected' : '';
+                                    echo "<option value='{$type['type_id']}' $selected>" . ($index + 1) . ". {$type['type_name']}</option>";
                                 }
                                 ?>
                             </select>
@@ -89,20 +90,17 @@ session_start(); ?>
                             <label for="mission_group_id">
                                 <h5>กลุ่มภารกิจ</h5>
                             </label>
-                            <select class="form-control" name="mission_group_id" id="mission_group_id" onclick="clearBorder(this)" required>
+                            <select class="form-control" name="mission_group_id" id="mission_group_id" onclick="clearBorder(this)" onchange="updateWorkGroups()" required>
                                 <option value="">-- กลุ่มภารกิจ --</option>
                                 <?php
-                                $missionGroupSql = "SELECT * FROM mission_group";
-                                $missionGroupStmt = mysqli_prepare($conn, $missionGroupSql);
-                                mysqli_stmt_execute($missionGroupStmt);
-                                $missionGroupData = mysqli_stmt_get_result($missionGroupStmt);
+                                $mission_group_sql = "SELECT * FROM mission_group";
+                                $mission_group_stmt = $conn->prepare($mission_group_sql);
+                                $mission_group_stmt->execute();
+                                $mission_groups = $mission_group_stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                                $imissionGroup = 1;
-
-                                while ($missionGroupRow = mysqli_fetch_assoc($missionGroupData)) {
-                                    $selected = ($missionGroupRow['mission_group_id'] == $row['mission_group_id']) ? 'selected' : '';
-                                    echo "<option value='{$missionGroupRow['mission_group_id']}' $selected>{$imissionGroup}. {$missionGroupRow['mission_group_name']}</option>";
-                                    $imissionGroup++;
+                                foreach ($mission_groups as $index => $mission_group) {
+                                    $selected = ($mission_group['mission_group_id'] == $row['mission_group_id']) ? 'selected' : '';
+                                    echo "<option value='{$mission_group['mission_group_id']}' $selected>" . ($index + 1) . ". {$mission_group['mission_group_name']}</option>";
                                 }
                                 ?>
                             </select>
@@ -111,22 +109,8 @@ session_start(); ?>
                             <label for="work_group_id">
                                 <h5>กลุ่มงาน</h5>
                             </label>
-                            <select class="form-control" name="work_group_id" id="work_group_id" onclick="clearBorder(this)" required>
+                            <select class="form-control" name="work_group_id" id="work_group_id" onclick="clearBorder(this)" onchange="updateDepartments()" required>
                                 <option value="">-- เลือกกลุ่มงาน --</option>
-                                <?php
-                                $workGroupSql = "SELECT * FROM work_group";
-                                $workGroupStmt = mysqli_prepare($conn, $workGroupSql);
-                                mysqli_stmt_execute($workGroupStmt);
-                                $workGroupData = mysqli_stmt_get_result($workGroupStmt);
-
-                                $iworkgroup = 1;
-
-                                while ($workGroupRow = mysqli_fetch_assoc($workGroupData)) {
-                                    $selected = ($workGroupRow['work_group_id'] == $row['work_group_id']) ? 'selected' : '';
-                                    echo "<option value='{$workGroupRow['work_group_id']}' $selected>{$iworkgroup}. {$workGroupRow['work_group_name']}</option>";
-                                    $iworkgroup++;
-                                }
-                                ?>
                             </select>
                         </div>
                         <div class="col mb-3" id="department_form">
@@ -135,42 +119,65 @@ session_start(); ?>
                             </label>
                             <select class="form-control" name="department_id" id="department_id" onclick="clearBorder(this)" required>
                                 <option value="">-- เลือกแผนก --</option>
-                                <?php
-                                $departmentSql = "SELECT * FROM department";
-                                $departmentStmt = mysqli_prepare($conn, $departmentSql);
-                                mysqli_stmt_execute($departmentStmt);
-                                $departmentData = mysqli_stmt_get_result($departmentStmt);
-
-                                $idepartment = 1;
-
-                                while ($departmentRow = mysqli_fetch_assoc($departmentData)) {
-                                    $selected = ($departmentRow['department_id'] == $row['department_id']) ? 'selected' : '';
-                                    echo "<option value='{$departmentRow['department_id']}' $selected>{$idepartment}. {$departmentRow['department_name']}</option>";
-                                    $idepartment++;
-                                }
-                                ?>
                             </select>
                         </div>
+
+                        <script>
+                            function updateWorkGroups() {
+                                const missionGroupId = document.getElementById('mission_group_id').value;
+                                const workGroupSelect = document.getElementById('work_group_id');
+                                workGroupSelect.innerHTML = '<option value="">-- เลือกกลุ่มงาน --</option>';
+
+                                if (missionGroupId) {
+                                    fetch(`helper/api/mission_work/works.php?mission_group_id=${missionGroupId}`)
+                                        .then(response => response.json())
+                                        .then(data => {
+                                            data.forEach((workGroup, index) => {
+                                                const option = document.createElement('option');
+                                                option.value = workGroup.work_group_id;
+                                                option.textContent = `${index + 1}. ${workGroup.work_group_name}`;
+                                                workGroupSelect.appendChild(option);
+                                            });
+                                        });
+                                }
+                            }
+
+                            function updateDepartments() {
+                                const workGroupId = document.getElementById('work_group_id').value;
+                                const departmentSelect = document.getElementById('department_id');
+                                departmentSelect.innerHTML = '<option value="">-- เลือกแผนก --</option>';
+
+                                if (workGroupId) {
+                                    fetch(`helper/api/department/department.php?work_group_id=${workGroupId}`)
+                                        .then(response => response.json())
+                                        .then(data => {
+                                            data.forEach((department, index) => {
+                                                const option = document.createElement('option');
+                                                option.value = department.department_id;
+                                                option.textContent = `${index + 1}. ${department.department_name}`;
+                                                departmentSelect.appendChild(option);
+                                            });
+                                        });
+                                }
+                            }
+                        </script>
                     </div>
                     <div class="row">
                         <div class="col mb-3" id="building_form">
                             <label for="building_id">
                                 <h5>อาคาร</h5>
                             </label>
-                            <select class="form-control" name="building_id" id="building_id" onclick="clearBorder(this)" required>
+                            <select class="form-control" name="building_id" id="building_id" onclick="clearBorder(this)" onchange="updateFloors()" required>
                                 <option value="">-- อาคาร --</option>
                                 <?php
-                                $buildingSql = "SELECT * FROM building";
-                                $buildingStmt = mysqli_prepare($conn, $buildingSql);
-                                mysqli_stmt_execute($buildingStmt);
-                                $buildingData = mysqli_stmt_get_result($buildingStmt);
+                                $building_sql = "SELECT * FROM building";
+                                $building_stmt = $conn->prepare($building_sql);
+                                $building_stmt->execute();
+                                $buildings = $building_stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                                $ibuilding = 1;
-
-                                while ($buildingRow = mysqli_fetch_assoc($buildingData)) {
-                                    $selected = ($buildingRow['building_id'] == $row['building_id']) ? 'selected' : '';
-                                    echo "<option value='{$buildingRow['building_id']}' $selected>{$ibuilding}. {$buildingRow['building_name']}</option>";
-                                    $ibuilding++;
+                                foreach ($buildings as $index => $building) {
+                                    $selected = ($building['building_id'] == $row['building_id']) ? 'selected' : '';
+                                    echo "<option value='{$building['building_id']}' $selected>" . ($index + 1) . ". {$building['building_name']}</option>";
                                 }
                                 ?>
                             </select>
@@ -181,17 +188,26 @@ session_start(); ?>
                             </label>
                             <select class="form-control" name="floor_id" id="floor_id" onclick="clearBorder(this)" required>
                                 <option value="">-- ชั้น --</option>
-                                <?php
-                                $floorSql = "SELECT * FROM floor LIMIT 10";
-                                $floorStmt = mysqli_prepare($conn, $floorSql);
-                                mysqli_stmt_execute($floorStmt);
-                                $floorData = mysqli_stmt_get_result($floorStmt);
-                                while ($floorRow = mysqli_fetch_assoc($floorData)) {
-                                    $selected = ($floorRow['floor_id'] == $row['floor_id']) ? 'selected' : '';
-                                    echo "<option value='{$floorRow['floor_id']}' $selected>{$floorRow['floor_name']}</option>";
-                                }
-                                ?>
                             </select>
+                            <script>
+                                function updateFloors() {
+                                    const buildingId = document.getElementById('building_id').value;
+                                    const floorSelect = document.getElementById('floor_id');
+                                    floorSelect.innerHTML = '<option value="">-- ชั้น --</option>';
+                                    if (buildingId) {
+                                        fetch(`helper/api/floor/floor.php?building_id=${buildingId}`)
+                                            .then(response => response.json())
+                                            .then(data => {
+                                                data.forEach((floor, index) => {
+                                                    const option = document.createElement('option');
+                                                    option.value = floor.floor_id;
+                                                    option.textContent = `${index + 1}. ${floor.floor_name}`;
+                                                    floorSelect.appendChild(option);
+                                                });
+                                            });
+                                    }
+                                }
+                            </script>
                         </div>
                     </div>
                     <div class="row">
@@ -224,10 +240,7 @@ session_start(); ?>
             </div>
         </section>
     </main>
-    <?php include_once 'helper/API/building_floor/floors.php' ?>
-    <?php include_once 'helper/API/mission_work/works.php' ?>
-    <?php include_once 'helper/API/department/department.php' ?>
-    <?php include_once 'helper/API/category/category.php' ?>
+
 
 </body>
 

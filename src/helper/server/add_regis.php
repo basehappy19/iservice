@@ -109,7 +109,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $status_id);
     
     if ($stmt->execute()) {
-        header("Location: ../../list-item");
+        header("location: ../../list-item.php");
         exit(); 
     } else {
         echo "Error: " . $stmt->error;

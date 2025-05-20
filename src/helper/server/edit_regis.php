@@ -77,13 +77,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 
         if (mysqli_stmt_execute($stmt)) {
-            header("location: ../../list-item");
+            header("location: ../../list-item.php");
         } else {
-            header("location: ../../list-item");
+            header("location: ../../list-item.php");
         }
 
 } else {
-    header("location: ../../list-item"); 
+    header("location: ../../list-item.php"); 
 }
 
 ?>

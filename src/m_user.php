@@ -2,15 +2,16 @@
 require_once 'helper/server/db.php';
 session_start();
 
-if (!isset($_SESSION['role']) || $_SESSION['role'] != '4') {
-    header("Location: login");
+if (!isset($_SESSION['role']) || $_SESSION['role'] != 4) {
+    header("Location: ./login.php");
 }
 
-$sql = "SELECT * FROM user INNER JOIN role ON user.role_id = role.role_id";
-$stmt = mysqli_prepare($conn, $sql);
-mysqli_stmt_execute($stmt);
+$sql = "SELECT user_id, username, role.role_id, role.role_name, `name`, `phone` FROM user 
+LEFT JOIN role ON user.role_id = role.role_id";
 
-$data = mysqli_stmt_get_result($stmt);
+$stmt = $conn->prepare($sql);
+$stmt->execute();
+$users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 ?>
 
@@ -27,6 +28,12 @@ $data = mysqli_stmt_get_result($stmt);
 <body>
     <?php include 'helper/source/header.php' ?>
     <main>
+        <?php
+        if (isset($_SESSION['success'])) {
+            echo $_SESSION['success'];
+            unset($_SESSION['success']);
+        }
+        ?>
         <?php
         if (isset($_SESSION['error'])) {
             echo $_SESSION['error'];
@@ -54,28 +61,26 @@ $data = mysqli_stmt_get_result($stmt);
                         </tr>
                     </thead>
                     <tbody>
-                        <?php $i = 1;
-                        while ($row = mysqli_fetch_assoc($data)) : ?>
-                            <?php if ($row['username'] != 'system') : ?>
+                        <?php foreach ($users as $index => $user) : ?>
+                            <?php if ($user['username'] != 'system') : ?>
                                 <tr>
-                                    <td><?php echo $i; ?></td>
-                                    <td><?php echo $row['username']; ?></td>
-                                    <td><?php echo $row['name']; ?></td>
-                                    <td><?php echo $row['role_name']; ?></td>
+                                    <td><?php echo $index + 1; ?></td>
+                                    <td><?php echo $user['username']; ?></td>
+                                    <td><?php echo $user['name']; ?></td>
+                                    <td><?php echo $user['role_name']; ?></td>
                                     <td>
-                                        <?php if ($row['username'] != 'system') : ?>
-                                            <button type="button" class="btn btn-new btn-new-warning" data-toggle="modal" data-target="#edit_userModal<?php echo $row['user_id']; ?>">
+                                        <?php if ($user['username'] != 'system') : ?>
+                                            <button type="button" class="btn btn-new btn-new-warning" data-toggle="modal" data-target="#edit_userModal<?php echo $user['user_id']; ?>">
                                                 แก้ไขข้อมูล <i class="fa-solid fa-pencil"></i>
                                             </button>
-                                            <button type="button" class="btn btn-new btn-new-danger" onclick="delete_user('helper/server/delete_user.php?user_id=<?php echo $row['user_id'] ?>')">ลบผู้ใช้</button>
+                                            <button type="button" class="btn btn-new btn-new-danger" onclick="delete_user('./helper/server/delete_user.php?user_id=<?php echo $user['user_id'] ?>')">ลบผู้ใช้</button>
                                         <?php endif; ?>
                                     </td>
                                 </tr>
                             <?php endif; ?>
                             <?php include 'helper/source/modal-edit-user.php' ?>
                             <?php include 'helper/source/modal-add-user.php' ?>
-                        <?php $i++;
-                        endwhile;  ?>
+                        <?php endforeach;  ?>
                     </tbody>
                 </table>
             </div>
